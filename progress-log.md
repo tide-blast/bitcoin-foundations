@@ -6,6 +6,34 @@ assistant — paste the most recent entry (or last few) at the start of a new ch
 for continuity.
 
 ---
+## 2026-08-03
+
+**Covered:**
+- Fixed folder typo: `projects/bitcoin-dashborad` → `bitcoin-dashboard` (using `mv`)
+- Learned that Git does not track empty directories at all — a rename of an
+  empty folder produces no `git status` change.
+- Read `git log` in full detail: commit hash, HEAD/branch pointers, author,
+  date, and merge commits (which have two parents, one per branch merged).
+- Practiced `git log --oneline --graph --all` to visually read branch
+  splits and merges.
+- `git revert`: creates a new commit that undoes an earlier one; original
+  mistake stays visible in history. Safe on shared/pushed commits.
+- `git reset --hard`: moves the branch pointer backward, makes commits
+  after that point unreachable, and discards uncommitted working directory
+  changes. Only safe on commits that haven't been pushed/shared yet.
+- Confirmed practically: unpushed commits are safe to reset; pushed commits
+  should be reverted instead, since others may have already built on them.
+
+**Open items / next session:**
+- Module 1 (Git) is now complete.
+- Move into Module 2: Linux/terminal fundamentals (permissions, processes,
+  grep/find, piping in more depth).
+- Optional cleanup: delete the now-unused `conflict-demo` branch label
+  (commits already merged, label just needs tidying).
+
+**Confused / needs reinforcement:**
+- (none flagged — reasoning checks throughout the session were solid)
+
 
 ## 2026-07-29
 
