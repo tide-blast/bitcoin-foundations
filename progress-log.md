@@ -1,3 +1,4 @@
+THIS IS A DELIBERATE MISTAKE FOR THE REVERT/RESET LESSON
 # Progress Log — Bitcoin Foundations
 
 Running log of study sessions. Newest entries at the top. Used both as a personal
