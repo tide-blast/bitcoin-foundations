@@ -18,7 +18,7 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 
 ## Modules
 
-### Module 0 — Repo hygiene (in progress)
+### Module 0 — Repo hygiene
 - Clean/confirm `.gitignore` behavior
 - Fix folder naming issues
 - Establish curriculum.md and progress-log.md as sources of truth
@@ -31,7 +31,7 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 - [ ] `git revert` vs `git reset`
 - [ ] Writing clear commit messages as a habit
 
-### Module 2 — Linux / terminal fundamentals
+### Module 2 — Linux / terminal fundamentals (in progress)
 - [ ] Filesystem navigation (pwd, ls, cd, mkdir, mv, cp, rm)
 - [ ] Permissions (chmod, ownership)
 - [ ] Processes (ps, top, kill)

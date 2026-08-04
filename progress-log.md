@@ -6,6 +6,36 @@ assistant — paste the most recent entry (or last few) at the start of a new ch
 for continuity.
 
 ---
+
+## 2026-08-04
+
+**Covered:**
+
+- File permissions: read/write/execute, owner/group/others breakdown of
+  `ls -l` output (e.g., `rwx------`).
+- Debugged a real issue: `chmod u-x` ran successfully (exit code 0) but
+  never changed permissions. Root cause: the repo lives on an exFAT-formatted
+  external drive, which doesn't support Unix permission bits at all — `ls -l`
+  was just simulating a display, not showing real stored data.
+- `grep` basics: searching file contents, `-n` (line numbers), `-i`
+  (case-insensitive), `-v` (invert match / exclude).
+- `find` basics: searching the filesystem by name (`find . -name "*.md"`),
+  and that it recurses into subdirectories by default.
+- Regex basics: `.` as wildcard vs `\.` as literal period (escaping).
+- Combined `find` + `grep -v` to filter out `._` AppleDouble files from
+  results — same underlying pattern as the Module 0 `git ls-files | grep`
+  check, now with the "why" behind the escaping.
+
+**Open items / next session:**
+
+- Module 2 continues: processes (`ps`, `kill`, background jobs) still to cover.
+- curriculum.md still shows "Module 0 — Repo hygiene (in progress)" —
+  needs updating to reflect Module 0 and Module 1 are both complete.
+
+**Confused / needs reinforcement:**
+
+- (none flagged — exFAT/chmod debugging was worked through successfully)
+
 ## 2026-08-03
 
 **Covered:**
