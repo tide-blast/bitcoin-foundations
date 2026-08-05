@@ -26,17 +26,17 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 ### Module 1 — Git deepening
 - [x] Branching
 - [x] Merge conflicts (created and resolved one deliberately)
-- [ ] Reading `git log` fluently
-- [ ] `.gitignore` patterns
-- [ ] `git revert` vs `git reset`
-- [ ] Writing clear commit messages as a habit
+- [x] Reading `git log` fluently
+- [x] `.gitignore` patterns
+- [x] `git revert` vs `git reset`
+- [x] Writing clear commit messages as a habit
 
-### Module 2 — Linux / terminal fundamentals (in progress)
-- [ ] Filesystem navigation (pwd, ls, cd, mkdir, mv, cp, rm)
-- [ ] Permissions (chmod, ownership)
-- [ ] Processes (ps, top, kill)
-- [ ] Piping and redirection (|, >, grep)
-- [ ] Reading man pages / documentation
+### Module 2 — Linux / terminal fundamentals
+- [x] Filesystem navigation (pwd, ls, cd, mkdir, mv, cp, rm)
+- [x] Permissions (chmod, ownership)
+- [x] Processes (ps, top, kill)
+- [x] Piping and redirection (|, >, grep)
+- [x] Reading man pages / documentation
 
 ### Module 3 — Python fundamentals
 - [ ] Variables, strings, numbers

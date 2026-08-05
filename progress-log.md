@@ -7,6 +7,45 @@ for continuity.
 
 ---
 
+## 2026-08-05
+
+**Covered:**
+
+- Processes: `ps` (default shows only current terminal's processes), `ps -A`
+  (all system processes), reading PID/TTY/TIME/CMD columns.
+- PID 1 (`launchd` on macOS) as the root of the process tree — everything
+  else traces back to it.
+- Combined `ps -A | grep -i <name>` to search for a process — hit a real
+  gotcha: searching "chrome" matched Brave, Proton Mail, Adobe Acrobat, and
+  VS Code, none of which are Google Chrome, because they're all built on the
+  Chromium engine and share `chrome_crashpad_handler` / version strings.
+  Good lesson that grep matches substrings, not app identity.
+- `kill` basics: it's not "destroy," it's "send a signal." Plain `kill`
+  (SIGTERM) = polite request, catchable, allows cleanup. `kill -9`
+  (SIGKILL) = immediate, uncatchable, no cleanup — last resort only.
+- Discussed real-world relevance ahead: `bitcoind` in Module 5 will need
+  graceful shutdown (`bitcoin-cli stop`) rather than `kill -9`.
+- Redirection: `>` (overwrite) vs `>>` (append). Confirmed the shell creates/
+  truncates the destination file *before* the command even runs.
+- Lived through a real `>` overwrite accident: ran `ls >` instead of `ps -A >`
+  into the same file, silently wiping the prior contents — direct hands-on
+  example of why `>` needs caution vs `>>`.
+- `man` pages: `man <command>` opens documentation via the `less` pager;
+  `q` to quit, spacebar to page forward, `/` to search within the page.
+
+**Module 2 (Linux/terminal fundamentals) is now complete.**
+
+**Open items / next session:**
+
+- Starting Module 3: Python fundamentals (new chat).
+
+**Confused / needs reinforcement:**
+
+- Minor mix-up between `man`'s pager prompt (`:`) and the actual quit key
+  (`q`) — resolved immediately, not a real sticking point.
+
+
+
 ## 2026-08-04
 
 **Covered:**
