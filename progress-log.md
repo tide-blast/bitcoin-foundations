@@ -6,6 +6,47 @@ assistant — paste the most recent entry (or last few) at the start of a new ch
 for continuity.
 
 ---
+## 2026-08-06
+Covered:
+
+* Session 1 — Variables, strings, numbers: `int` vs `float` distinction (and its
+  real relevance to satoshis-as-ints vs BTC-as-floats), f-strings for embedding
+  variables in text, `type()` to inspect a variable's type.
+* String concatenation (`+`) vs f-strings — concatenation requires both sides to
+  already be strings (`str()` needed to convert), f-strings auto-convert inside `{}`.
+  Real gotcha hit directly: `"text" + int_variable` throws a TypeError.
+* Type conversion: `int()`, `float()`, `str()` — including that `int("917234.5")`
+  errors (won't silently drop the decimal; needs `int(float(...))` to do both steps).
+* String methods: `.strip()`, `.upper()`, `.startswith()` — and why `.strip()`
+  matters for real data (invisible whitespace breaks equality checks).
+* Modulo (`%`) — remainder division, and its use for "every Nth item" checks
+  (tied to real Bitcoin relevance: difficulty adjustment every 2016 blocks).
+* Session 2 — Control flow: `if` / `elif` / `else`, comparison operators,
+  `and` / `or` (built an `and` condition from scratch, including the mistake of
+  writing `>= 1 and <= 5` instead of repeating the variable on both sides).
+* `while` loops, including the infinite-loop trap (forgetting to increment the
+  loop variable) and `Ctrl+C` as the escape hatch.
+* `for` loops with `range()` — inclusive start, exclusive stop. Nesting `if`
+  inside `for` — identified as the core recurring shape for processing lists
+  of transactions/blocks later on.
+* `break` (exit loop entirely) vs `continue` (skip current iteration only) —
+  worked through a combined example correctly, including that `break`'s
+  position in the loop body determines what gets checked before the exit.
+* Interactive shell mechanic: blank line required to close and execute a
+  multi-line block (`if`/`while`/`for`) typed directly into the shell —
+  not needed when running from a `.py` file.
+
+Module 3 (Python fundamentals) — Sessions 1 and 2 complete.
+
+Open items / next session:
+
+* Session 3: Functions.
+
+Confused / needs reinforcement:
+
+* None — syntax mistakes (capitalization, `=` vs `==`, smart quotes, missing
+  colons) were self-corrected within 1-2 attempts each. No conceptual gaps.
+
 
 ## 2026-08-05
 

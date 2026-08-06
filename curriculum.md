@@ -39,8 +39,8 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 - [x] Reading man pages / documentation
 
 ### Module 3 — Python fundamentals
-- [ ] Variables, strings, numbers
-- [ ] Control flow (if/while/for)
+- [x] Variables, strings, numbers
+- [x] Control flow (if/while/for)
 - [ ] Functions
 - [ ] Lists and dictionaries
 - [ ] Reading/writing files
