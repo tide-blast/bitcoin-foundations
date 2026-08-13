@@ -42,7 +42,7 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 - [x] Variables, strings, numbers
 - [x] Control flow (if/while/for)
 - [x] Functions
-- [ ] Lists and dictionaries
+- [x] Lists and dictionaries
 - [ ] Reading/writing files
 - [ ] Calling an API, working with JSON
 

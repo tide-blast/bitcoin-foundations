@@ -7,6 +7,52 @@ for continuity.
 
 ---
 
+2026-08-13
+Covered:
+
+* Session 4 — Lists: creation (`[ ]`), indexing (positive and negative,
+  e.g. `[-1]` for last item), `len()` and the `len()-1` last-index
+  relationship, `.append()` vs index assignment (`list[i] = x`), and
+  looping with `for item in list:`.
+* Session 4 — Dictionaries: creation (`{ }` with `key: value` pairs),
+  accessing values by key (`dict["key"]`), case-sensitivity of keys,
+  `KeyError` vs a list's `IndexError`. Adding a new key vs overwriting
+  an existing one via assignment — noted the key difference from lists
+  (dict assignment to a new key never errors; list assignment to an
+  out-of-range index does).
+* Looping through a dictionary: keys-only (`for key in dict:`) vs
+  keys+values together (`for key, value in dict.items():`).
+* Combined structure: list of dictionaries (e.g. a list of transaction
+  objects) — identified as the direct real-world shape of RPC/JSON data.
+  Chained indexing + key access (`transactions[1]["confirmations"]`) to
+  pull one field from one item in a list of dicts.
+* Wrote a full realistic pattern independently: loop through a list of
+  dicts, filter with an `if` on one field, print another field for
+  matches only (`for tx in transactions: if tx["confirmations"] == 0:
+  print(tx["txid"])`) — traced through manually pass-by-pass and
+  predicted output correctly.
+* Cleared up a wording mix-up: `return` is specific to function bodies,
+  not a general term for "produce a value" — flagged and corrected when
+  raised.
+
+Module 3 (Python fundamentals) — Session 4 complete.
+
+Open items / next session:
+
+* Session 5: Reading/writing files, calling an API, working with JSON
+  (final session of Module 3).
+
+Confused / needs reinforcement:
+
+* Minor syntax miss chaining list index + dict key
+  (tried `transactions[1, "confirmations"]` instead of
+  `transactions[1]["confirmations"]`) — corrected immediately once the
+  two-step lookup was explained; no repeat of the mistake afterward.
+* Requested a slower, more explicit pace for this session (defining each
+  new concept before showing code, rather than introducing via example) —
+  worked well and should carry forward into Session 5.
+
+
 2026-08-12
 Covered:
 
