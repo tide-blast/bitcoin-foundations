@@ -7,6 +7,64 @@ for continuity.
 
 ---
 
+2026-08-13 (cont'd)
+Covered:
+
+* Session 5 — File I/O: `open()` and file modes — `"w"` (write, truncates
+  existing contents — same risk as terminal `>` from Module 2), `"a"`
+  (append), `"r"` (read). `.write()` requires strings and does NOT auto-add
+  newlines (`\n` must be included manually, unlike `print()`).
+* `with open(...) as file:` pattern — automatically closes the file on
+  exit from the block, safer than manual `open()`/`.close()` since it
+  still closes properly even if an error occurs mid-block. Confirmed
+  understanding that writing to a file after its `with` block ends throws
+  a `ValueError` (file object still exists as a variable, but is closed).
+* `.read()` (whole file as one string, `\n` characters included literally)
+  vs `.readlines()` (a list of strings, one per line). Practiced writing
+  a two-line file, reading it back with `.readlines()`, looping through
+  with `for i in lines:`, and using `.strip()` to clean trailing `\n`
+  before printing — full write/read round trip completed successfully.
+* API calls: conceptual link established between RPC (Module 5 preview)
+  and general web API calls — both are request/response, just RPC is
+  local (to `bitcoind`) and this was a remote HTTP call.
+* JSON — recognized as structurally identical to Python dicts/lists,
+  explaining why Session 4 directly prepares for this material.
+* Installed `requests` via `pip3 install requests` (handled two benign
+  warnings: PATH warning for helper scripts, pip version warning) and an
+  `import requests` LibreSSL/OpenSSL compatibility warning from urllib3 —
+  confirmed harmless for basic use.
+* Distinguished one-time `pip3 install` (installs on the machine) from
+  per-script `import` (loads into that specific running program) —
+  articulated correctly and precisely on first attempt.
+* Made a live GET request to GitHub's public API (`requests.get(...)`),
+  checked `response.status_code` (200), and converted the response to a
+  Python dictionary with `response.json()`.
+* Looped through the response with `.items()` to inspect all keys/values;
+  clarified the distinction between fixed dictionary methods (`.keys()`,
+  `.values()`, `.items()` — fixed names, not renameable) vs. loop variable
+  names (arbitrary, matched by position, not by name).
+* Final independent exercise: pulled a specific field (`data["repository_url"]`)
+  from the live API response and formatted it into a sentence with an
+  f-string — combining dict access + f-strings + real API data correctly
+  on the first attempt.
+
+** Module 3 (Python fundamentals) — COMPLETE. All 5 sessions finished:
+variables/strings/numbers, control flow, functions, lists/dictionaries,
+file I/O + API/JSON. **
+
+Open items / next session:
+
+* Module 4 — to be scoped (see curriculum.md for original outline; may
+  be reviewed/adjusted before starting given how Module 3 went).
+
+Confused / needs reinforcement:
+
+* One extra comma in `for a, b, in data.items():` — ran without error but
+  flagged as non-standard syntax; corrected.
+
+
+
+
 2026-08-13
 Covered:
 

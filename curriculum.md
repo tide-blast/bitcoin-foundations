@@ -43,8 +43,8 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 - [x] Control flow (if/while/for)
 - [x] Functions
 - [x] Lists and dictionaries
-- [ ] Reading/writing files
-- [ ] Calling an API, working with JSON
+- [x] Reading/writing files
+- [x] Calling an API, working with JSON
 
 ### Module 4 — Bitcoin protocol theory
 - [ ] Hashing (SHA-256), Merkle trees
