@@ -47,10 +47,10 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 - [x] Calling an API, working with JSON
 
 ### Module 4 — Bitcoin protocol theory
-- [ ] Hashing (SHA-256), Merkle trees
-- [ ] Public-key cryptography, addresses
-- [ ] UTXOs vs. account models
-- [ ] Transaction structure
+- [x] Hashing (SHA-256), Merkle trees
+- [x] Public-key cryptography, addresses
+- [x] UTXOs vs. account models
+- [x] Transaction structure
 - [ ] Block structure, proof-of-work
 - [ ] The P2P network (conceptual)
 
