@@ -51,14 +51,14 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 - [x] Public-key cryptography, addresses
 - [x] UTXOs vs. account models
 - [x] Transaction structure
-- [ ] Block structure, proof-of-work
-- [ ] The P2P network (conceptual)
+- [x] Block structure, proof-of-work
+- [x] The P2P network (conceptual)
 
 ### Module 5 — Bitcoin Core + RPC (hands-on)
-- [ ] Install Bitcoin Core
-- [ ] Run on testnet/signet
-- [ ] Use bitcoin-cli / JSON-RPC
-- [ ] Explore real blocks and transactions
+- [x] Install Bitcoin Core
+- [x] Run on testnet/signet
+- [x] Use bitcoin-cli / JSON-RPC
+- [x] Explore real blocks and transactions
 
 ### Module 6 — Build
 - [ ] Project 1: raw transaction decoder (Python)

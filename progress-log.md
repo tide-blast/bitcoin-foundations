@@ -7,6 +7,155 @@ for continuity.
 
 ---
 
+2026-08-26
+Covered:
+
+* Session 5 — The P2P network (conceptual): defined a node's three core
+  jobs (store, validate, relay) and established that trust is placed
+  entirely in shared validation rules, not in any node's identity or
+  authority — no central coordinator.
+* Correctly reasoned that invalid data (bad signature, bad proof-of-
+  work) fails to propagate through the network. Initial answer proposed
+  a shared "blacklist" mechanism — corrected: rejected data is simply
+  dropped silently and never relayed; every node re-validates
+  independently using the same rules, so there's no need for a
+  coordinated blacklist. Noted the one real (but local, non-shared)
+  exception: individual nodes may disconnect from consistently
+  misbehaving peers.
+* Worked through a double-spend scenario in detail: correctly
+  identified that both conflicting transactions could be individually
+  valid (signature-wise), and correctly predicted eventual resolution
+  via block inclusion. Refined with the precise mechanism: mempool-
+  level detection (a node rejects a second transaction referencing an
+  already-seen UTXO), with final resolution occurring once one version
+  is actually mined into a block — the losing version is then dropped
+  network-wide since its UTXO is now provably already spent.
+* Worked through a temporary-fork scenario (two valid blocks found
+  near-simultaneously): correctly predicted that whichever side extends
+  first "wins" and that the network converges onto the longer/more
+  current chain at an accelerating rate. Refined terminology to the
+  precise rule (most cumulative proof-of-work, not simply "longest"),
+  and added the economic mechanism driving the acceleration: miners are
+  incentivized to abandon a losing chain immediately, since continuing
+  to mine on it risks an unspendable reward once abandoned (orphaned/
+  stale block) — this is what drives the winning chain's lead to
+  compound quickly.
+* Correctly distinguished orphaned blocks' fate: coinbase reward
+  evaporates entirely for that miner, while ordinary (non-coinbase)
+  transactions from the orphaned block return to the mempool and are
+  eligible for inclusion in a future block.
+
+** Module 4, Session 5 complete. MODULE 4 (Bitcoin Protocol Theory) — FULLY COMPLETE. **
+
+Open items / next session:
+
+* Scope Module 5 (Bitcoin Core + RPC, hands-on) — install Bitcoin Core,
+  choose signet as the target network (recommended over testnet3/4 for
+  size and predictability, per earlier discussion), run via bitcoin-cli
+  / JSON-RPC, explore real blocks and transactions via Python.
+
+Confused / needs reinforcement:
+
+* None of real substance. Initial answers throughout this session
+  (blacklist mechanism, "consensus conflict" phrasing for double-spend,
+  "longest chain" phrasing for forks) were directionally correct on
+  first attempt and refined to precise mechanisms through discussion —
+  strong conceptual grasp of P2P consensus by the end of the session.
+
+
+
+2026-08-20
+Covered:
+
+* Session 4 — Block structure, proof-of-work: block anatomy (header +
+  transaction list) — header contains previous block hash, Merkle root,
+  timestamp, difficulty target, and nonce, and stays small/fixed size
+  regardless of transaction count. Correctly reasoned why including only
+  the previous block's hash is sufficient to "lock in" that entire prior
+  block's contents (ties directly to Session 1 hashing properties).
+* Correctly reasoned through the chain-tampering ripple effect: initially
+  answered "50 blocks" for a tampered block 100 in a chain at height 150,
+  self-corrected to the precise answer (51 — the tampered block itself
+  plus the 50 that follow) once walked through carefully.
+* Built a full sample block in Python: transactions list + header,
+  computing a real Merkle root from 3 transactions using the Session 1
+  method (including odd-count duplication, since 3 is odd).
+* Proof-of-work mechanics: difficulty target as a numeric ceiling a
+  header hash must fall below; nonce as the only "free variable" miners
+  can change per attempt. Correctly reasoned that no pattern or shortcut
+  exists between nonce attempts (avalanche effect implication) — floated
+  "rainbow tables" as a possible shortcut, which was corrected: rainbow
+  tables reverse a specific known hash, which doesn't apply to mining's
+  "find any hash below a threshold" search.
+* Ran a real mining simulation in Python (4-leading-zero target, easy
+  difficulty for demo purposes) — found a valid nonce after 66,951 brute-
+  force attempts, confirming no shortcuts exist in practice.
+* Correctly reasoned through why tampering with an old block is
+  infeasible beyond "expensive": framed it as a race against a
+  continuously-growing honest chain, and correctly invoked the 51%/
+  cumulative-hashpower consensus rule connecting back to proof-of-work.
+* Difficulty defined precisely as a ratio against the difficulty-1
+  baseline target (not a literal "count the zeros" metric) — clarified
+  that leading zeros are a rough visual proxy for a shrinking numeric
+  target, not the actual mechanism the protocol tracks.
+* Pulled and examined two real blocks via Blockstream's public API:
+  the Genesis Block (block 0 — 1 transaction, null previous_block_hash,
+  nonce 2083236893, embedded newspaper headline) and Block 100,000
+  (Dec 2010 — 4 transactions, difficulty 14,484, 0 BTC in fees).
+* Coinbase transaction deep dive: examined the real coinbase tx from
+  Block 100,000 — no real "vin" (just an arbitrary "coinbase" data
+  field, no signature needed), single output creating 50 BTC from
+  nothing. Noted real output used a raw public key (P2PK), not a hashed
+  address — a live historical artifact of the pre-P2PKH era, directly
+  reinforcing Session 2/3 material on address hashing. Also examined a
+  normal (non-coinbase) transaction from the same block, mapping
+  prev_tx_id/output_index/signature/public_key onto real vin/vout/
+  scriptSig/scriptPubKey fields.
+* Coinbase field size limit: confirmed via search — 100 bytes max
+  (4-byte minimum, holding block height per BIP34). Discussed real use
+  of remaining space as "extra nonce" for mining (since the header's own
+  4-byte nonce field is exhausted almost instantly by modern ASICs),
+  directly extending the Session 4 mining-search discussion.
+* OP_RETURN outputs: explained as a script opcode marking an output
+  provably unspendable, existing specifically so nodes don't have to
+  carry fake "spendable" outputs in the UTXO set forever just to store
+  arbitrary data. Covered current, real controversy: Bitcoin Core v30
+  (Oct 2025) raised the default relay limit from ~80 bytes to 100,000
+  bytes (policy-level, not consensus) — discussed the active Core vs.
+  Knots debate and the real concern (illicit material permanently
+  embedded on-chain) at a high level, without specifics.
+* Asked a sharp follow-up on why "cumulative work" rather than "block
+  count" is the consensus tie-breaker (hypothesizing a mid-fork
+  difficulty drop scenario) — corrected: both forks share the same
+  difficulty at the fork point (recalculated network-wide only every
+  2,016 blocks), so the real reason for "cumulative work" is precision
+  across long forks spanning a difficulty adjustment boundary, not a
+  live short-fork threat. Distinguished this from real, separate
+  difficulty-timing manipulation attacks (largely theoretical for
+  Bitcoin given capped ±25%-ish adjustment size).
+* Follow-up research: confirmed real historical multi-adjustment
+  downward difficulty streaks (2011; and 2021's 4-in-a-row streak
+  during the China mining ban, including the largest single drop ever
+  at ~28%) and current 2026 data (10 downward vs. 7 upward adjustments
+  YTD) — good real-world grounding for difficulty adjustment limits and
+  behavior around halvings.
+
+** Module 4, Session 4 complete. **
+
+Open items / next session:
+
+* Session 5: The P2P network (conceptual) — completed in the same
+  session as Session 4 (see below).
+
+Confused / needs reinforcement:
+
+* Minor initial miscount on the block-tampering ripple effect (50 vs.
+  51) — self-corrected immediately once walked through step by step.
+  No other gaps; strong session with several sharp tangents pursued
+  and resolved (rainbow tables, coinbase size limit, OP_RETURN,
+  cumulative-work vs. block-count reasoning).
+
+
 2026-08-18
 Covered:
 
