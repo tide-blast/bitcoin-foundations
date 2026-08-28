@@ -12,7 +12,7 @@ Goals:
 Progress:
 Y Repository setup
 Y Git/GitHub workflow
-N Linux fundamentals
-N Python basics
+Y Linux fundamentals
+Y Python basics
 N Bitcoin Core exploration
 N Bitcoin projects

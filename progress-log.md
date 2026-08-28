@@ -7,6 +7,104 @@ for continuity.
 
 ---
 
+
+2026-08-28
+Covered:
+
+* Module 5 — Bitcoin Core + RPC hands-on, continued. Confirmed signet
+  node fully synced (319,701+ blocks, verificationprogress: 1). Noted
+  infrastructure change: datadir relocated from external SSD to internal
+  drive due to repeated external-drive disconnects during sync;
+  bitcoin.conf itself remains on the external drive, with datadir
+  pointing inward — correctly reasoned that config location and data
+  location don't need to match.
+* Walked the getblockhash -> getblock -> getrawtransaction chain by hand
+  via bitcoin-cli. Correctly predicted header contents (nonce, prev
+  hash, Merkle root, difficulty) before running commands. Initial
+  reasoning on the getblockhash/getblock split proposed height as
+  something getblock independently derives; corrected — height isn't
+  stored in the header at all, it's a locally-maintained index
+  (hash -> height) separate from the hash-addressed block data itself.
+* Asked a strong clarifying question on chainwork ("compute cycles?"),
+  correctly redirected — chainwork tallies *expected* hash attempts
+  derived from each block's difficulty target, not actual work
+  performed. Follow-up question (whether mainnet's chainwork would
+  overflow 256 bits soon) reasoned through with order-of-magnitude
+  math — confirmed no realistic overflow risk (~47 orders of magnitude
+  of headroom remaining).
+* Pulled block 1 (single-tx block) and correctly predicted the
+  Merkle-root duplication rule would apply; self-corrected on follow-up
+  when the actual result (root == sole txid, no duplication) didn't
+  match — recognized that duplication only applies when reducing a
+  multi-element odd-length level, not a single-leaf case.
+* Pulled block 319,700 (212 transactions) and a real non-coinbase
+  transaction. Encountered a Taproot script-path spend (complex witness
+  stack) — flagged as a future topic and deliberately not pursued in
+  depth. Re-pulled a second, simpler transaction to isolate a clean
+  P2WPKH key-path spend: mapped scriptSig (empty, SegWit) vs.
+  txinwitness (sig + pubkey), an OP_RETURN data-carrier output (correctly
+  asked whether this is spender-set and how — confirmed: spender's
+  choice at construction time, zero value, not added to the UTXO set),
+  and a real payment output.
+* Initially assumed transactions were self-contained and that a
+  referenced prior transaction must belong to the same wallet —
+  corrected: every non-coinbase transaction must reference a prior
+  UTXO as input, and that prior output was near-certainly created by
+  an unrelated sender; only ability to unlock it (via signature) matters,
+  not who created it.
+* Enabled txindex=1 and ran a full reindex (same-session completion) to
+  resolve a "No such mempool transaction" error, after correctly
+  identifying that a plain txid lookup requires either an indexed node
+  or an explicit block hash. Used the new index to trace a transaction's
+  input back to its parent transaction and complete a real fee
+  calculation by hand (fee = input value - total output value),
+  discovering a 2-input, 3-output UTXO consolidation transaction in the
+  process.
+* Correctly pushed back on an unclear question (vin's vout index vs.
+  this transaction's own vout list) — flagged confusion rather than
+  guessing, leading to a needed clarification that these are two
+  unrelated numbering systems sharing a field name.
+* Bridged into Module 5's Python/RPC component. Asked a foundational
+  question on why a local-only call needs an IP address at all —
+  correctly reasoned toward the idea that ports serve as network
+  input/output interfaces, refined into the full model: single unified
+  networking stack regardless of destination, with 127.0.0.1 as a
+  reserved loopback address using identical IP-based machinery to
+  internet traffic, just short-circuited before leaving the machine.
+  Verified rpcport/rpcbind/rpcallowip were all unset in bitcoin.conf,
+  confirming signet's default (127.0.0.1:38332) by elimination rather
+  than assumption.
+* Wrote and successfully ran first raw JSON-RPC call from Python via
+  requests.post() (getblockchaininfo), with HTTP Basic Auth. Correctly
+  predicted the response would contain recognizable blockchain fields;
+  refined to the precise structural point — JSON-RPC wraps responses in
+  a result/error/id envelope, distinct from bitcoin-cli's flattened
+  display of the same underlying data. Requested and received a full
+  line-by-line explanation of the request script before running it.
+
+** Module 5 (Bitcoin Core + RPC) — IN PROGRESS. bitcoin-cli exploration
+solid; Python/JSON-RPC layer just begun. **
+
+Open items / next session:
+
+* Resume by sketching a rpc_call(method, params) function signature
+  before seeing the implementation (question intentionally left open
+  at session end).
+* Generalize the raw JSON-RPC pattern into a reusable Python function.
+* Reimplement getblockhash / getblock / getrawtransaction in Python
+  instead of bitcoin-cli.
+* Eventually feeds into Module 6 Project 2 (RPC-based node info tool).
+
+Confused / needs reinforcement:
+
+* None of real substance. A few initial mismatches this session
+  (Merkle-root duplication on a single-leaf block, assuming referenced
+  transactions share a wallet, conflating vin's vout index with the
+  transaction's own vout list) were self-caught or quickly corrected
+  through discussion — pattern of strong first-principles reasoning
+  from Module 4 continues to hold under more complex, real-world data.
+
+
 2026-08-26
 Covered:
 
@@ -61,7 +159,6 @@ Confused / needs reinforcement:
   "longest chain" phrasing for forks) were directionally correct on
   first attempt and refined to precise mechanisms through discussion —
   strong conceptual grasp of P2P consensus by the end of the session.
-
 
 
 2026-08-20
