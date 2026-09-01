@@ -7,6 +7,169 @@ for continuity.
 
 ---
 
+2026-09-01
+Covered:
+
+* Module 5 — Bitcoin Core + RPC, continued. Completed the full
+  getblockhash -> getblock -> getrawtransaction chain entirely in
+  Python via rpc_call, closing out the remaining open item from the
+  prior session.
+* Selected block 1200 first for the getrawtransaction step; correctly
+  interpreted the resulting single-item tx list by checking nTx: 1 in
+  the block data rather than assuming an error — recognized this as
+  the same degenerate single-coinbase case seen with block 1 earlier
+  in the module. Switched to block 319,700 (known from earlier
+  hand-run exploration to have 212 transactions) to guarantee a real
+  tx[1] existed.
+* Asked a precise clarifying question distinguishing dictionary
+  key-lookup (["result"], by name) from list indexing (tx_ID[1], by
+  position) — correctly reasoned through the distinction once framed,
+  including correctly identifying index 0 as the coinbase to be
+  skipped, consistent with convention established earlier in the
+  module.
+* Successfully ran rpc_call("getrawtransaction", [tx_ID[1], True]) and
+  retrieved the same Taproot script-path transaction (a1c81f97...)
+  originally pulled by hand with bitcoin-cli at the start of this
+  module — full three-call chain now completed twice, once manually,
+  once programmatically, with matching results.
+* Asked a strong conceptual question: how does getrawtransaction find
+  a transaction by txid alone without scanning every block? Correctly
+  suspected an index must exist rather than assuming brute-force
+  search. Connected directly back to earlier session's txindex=1 /
+  reindex work -- confirmed this is precisely what that index enables:
+  a direct txid -> disk-location lookup, mechanically identical in
+  purpose to the height -> hash index behind getblockhash from the
+  very start of the module.
+* Self-corrected a minor type misidentification (called raw_tx_result
+  a "list" in an inline comment) after being shown the {} vs []
+  distinction -- noted as a reflexive check to apply before assuming
+  a variable's type going forward.
+* Wrote inline comments documenting the final working script
+  independently and submitted them for review. All three evaluated as
+  accurate; one comment (on tx_ID) was specifically noted as precise
+  and well-scoped -- correctly identified both variable type and exact
+  data path without over- or under-explaining.
+
+** Module 5 (Bitcoin Core + RPC) — bitcoin-cli exploration and Python/
+rpc_call three-call chain both COMPLETE. Full chain verified working
+and documented. **
+
+Open items / next session:
+
+* Decide next step within Module 5: either close it out formally, or
+  do one more pass reinforcing rpc_call independence (writing similar
+  chains with less scaffolding) before moving to Module 6.
+* Module 6 Project 1 (raw transaction decoder, Python, byte-level hex
+  parsing) and Project 2 (RPC-based node info CLI tool) are the next
+  major milestones once Module 5 is formally closed.
+
+Confused / needs reinforcement:
+
+* None of real substance this session. Type-checking a variable's
+  underlying structure (dict vs. list) before acting on it surfaced
+  once as a small self-corrected slip -- worth light reinforcement,
+  not a genuine gap. Overall demonstrated independent debugging,
+  accurate self-documentation, and consistent reasoning back to
+  concepts (txindex) established several sessions ago -- strong
+  session end-to-end.
+
+
+2026-08-31
+Covered:
+
+* Module 5 — Bitcoin Core + RPC, continued. Resumed directly from prior
+  session's open question: sketching the rpc_call(method, params)
+  function signature before seeing an implementation. First attempt
+  (def rpc_call(get(block_height))) baked in one specific use case;
+  corrected toward general placeholders — method and params — after
+  reasoning back through which fields in the payload dictionary
+  actually vary between different RPC calls.
+* Asked and resolved a genuine conceptual question: how would rpc_call
+  "know" what method to call without an interactive prompt? Clarified
+  that the calling code itself (a specific line like
+  rpc_call("getblockhash", [1])) IS the decision — no runtime prompt
+  needed — and that bitcoind matches the method string against its own
+  internal command table, the same way a bitcoin-cli typo produces a
+  "method not found" error.
+* Asked a sharp clarifying question distinguishing bitcoind from
+  bitcoin-cli — initially assumed only bitcoin-cli could "call" data.
+  Corrected: bitcoind does double duty (node operation AND RPC
+  listener); bitcoin-cli is a thin, no-work messenger that bitcoind
+  doesn't distinguish from any other RPC client, including raw Python.
+* First full function-body attempt had three bugs, self-written before
+  correction: body not indented inside the function, import requests
+  placed inside the function body (works but bad practice), and
+  params wrapped in an extra list ([params] instead of params),
+  which would have malformed the JSON-RPC request shape. All three
+  corrected in a clean second attempt.
+* Also corrected print() vs return — recognized after explanation that
+  print() only displays and does not hand data back to the caller,
+  which would break any code trying to use the function's result
+  afterward (e.g. result = rpc_call(...) would silently be None).
+* Hit and resolved a real-world debugging sequence: file-not-found
+  error (typo'd filename), a NotOpenSSLWarning correctly identified as
+  harmless noise rather than a real error, then a script that ran with
+  no visible output — correctly diagnosed as "function defined but
+  never called," and fixed by adding actual call + print lines.
+* First live run of rpc_call("getblockchaininfo", []) succeeded,
+  returning real signet data. Asked a strong clarifying question about
+  whether the returned Python object was "JSON" — correctly redirected:
+  the wire format is JSON text; response.json() converts it into a
+  native Python dict, which merely resembles JSON syntactically.
+* Attempted result["chain"] directly on the top-level dict and got
+  confused when it wasn't there — correctly diagnosed after discussion
+  that the RPC envelope's own "result" key was one level of nesting
+  the same name as the variable holding it, requiring
+  result["result"]["chain"].
+* Explicitly flagged not wanting to move forward reflexively without
+  understanding rpc_call fully — good self-awareness moment. Function
+  execution was traced step-by-step (argument binding, fixed vs.
+  variable fields, payload assembly, request send, response parse,
+  return) before continuing.
+* Hit a second real debugging case: ran `python3 rpc_call.py` while
+  already inside the interactive Python shell (>>> prompt), producing
+  a SyntaxError — correctly resolved by explaining the shell/file
+  distinction and exiting to the regular terminal first.
+* Independently found and initially miswrote a dictionary-lookup bug
+  a second time — blockhash_result(["result"]) using function-call
+  parentheses instead of key-lookup brackets — self-corrected to
+  blockhash_result["result"] after explanation connected it back to
+  the earlier result["result"]["chain"] pattern.
+* Independently wrote and ran a full three-step chain in pure Python —
+  getblockchaininfo, then getblockhash(100), then extracting the plain
+  hash string via ["result"], then feeding that hash directly into
+  getblock — completing, unassisted in final form, the same
+  getblockhash -> getblock chain done by hand with bitcoin-cli earlier
+  in the module. Deliberately printed the full envelope first, by
+  design, to visually verify the extracted hash matched before using
+  it downstream — a genuinely good verification habit.
+
+** Module 5 (Bitcoin Core + RPC) — IN PROGRESS. rpc_call() built,
+debugged, and successfully chained across two calls in pure Python. **
+
+Open items / next session:
+
+* Extend the chain one more step: pull a txid from the block 100
+  tx[] list and call getrawtransaction via rpc_call, completing the
+  full three-call chain (getblockhash -> getblock -> getrawtransaction)
+  entirely in Python.
+* Continue building comfort/independence with rpc_call before treating
+  it as a fully reflexive tool.
+* Eventually feeds into Module 6 Project 2 (RPC-based node info tool).
+
+Confused / needs reinforcement:
+
+* Dictionary key-lookup syntax (square brackets vs. function-call
+  parentheses) surfaced twice as a point of confusion — resolved both
+  times through explanation, but worth light reinforcement/repetition
+  given the recurrence.
+* General self-assessed uncertainty about writing this code fully
+  unassisted — addressed directly: current skill trajectory (strong
+  bug diagnosis, correct self-directed fixes, unprompted completion of
+  the final chaining script) is consistent with, and likely ahead of,
+  what's needed for this module's actual goal of technical literacy
+  and direction rather than unassisted authorship.
+
 
 2026-08-28
 Covered:
