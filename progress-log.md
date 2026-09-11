@@ -7,6 +7,384 @@ for continuity.
 
 ---
 
+2026-09-11
+Covered:
+
+* Reviewed the "for i in range(...)" loop mechanic in isolation before
+  building the input loop -- confirmed range() starts at 0 and stops
+  before the given count (e.g. range(3) -> 0,1,2), and that the loop
+  counter (i) doesn't need to be used inside the body for this parser.
+* Reviewed dictionary basics (key-value creation both inline and via
+  bracket assignment, reading values back by key) and confirmed
+  dictionary keys are chosen labels, not data present in the raw hex
+  string. Adopted Bitcoin Core's own field names (vout, scriptSig,
+  txid, sequence / value, scriptPubKey) as dict keys for consistency
+  with getrawtransaction's verbose output.
+* Reviewed list.append() for building a list of per-item dictionaries,
+  and the importance of initializing the list once, outside the loop.
+* Completed parse_inputs(string_hex, offset, input_count): loops
+  input_count times, reads txid/vout/scriptSig/sequence per input,
+  builds a dict per iteration, appends to a list, returns
+  (inputs_list, offset). Several real bugs surfaced and were fixed
+  across multiple passes: a stray unfinished parse_count() function
+  (removed), a parameter/variable naming collision (parse_count reused
+  as both function and parameter name), a lingering tx_number_hex vs
+  number_hex mismatch left over from earlier compactsize work, and a
+  variable name collision where the previous-output index was
+  temporarily reusing the input_count name. Verified with a two-input
+  test exercising both the plain and 0xfd compactsize branches -- both
+  inputs parsed correctly, final offset matched exactly.
+* Mapped the full output section structure (output_count once, then per
+  output: 8-byte value, scriptPubKey length via compactsize,
+  scriptPubKey read straight through) and flagged the two differences
+  from inputs: value is 8 bytes (first 8-byte field in the parser so
+  far) and outputs have no txid/vout/sequence, just value + scriptPubKey.
+* Built output_value() (the outputs parser) incrementally, debugging
+  live: missing colon, a space-instead-of-underscore variable name
+  (number value), a missing string_hex parameter, a missing tuple
+  unpack on a parse_compactsize() call, and a return statement
+  incorrectly indented inside the loop (causing only the first output
+  to ever be returned, silently -- no crash, just wrong results).
+  Verified with a two-output test after each fix -- final version
+  correctly returns both outputs with an exact matching offset.
+
+** Module 6 / Project 1 -- parse_version(), parse_compactsize(),
+parse_inputs(), and output_value() (outputs parser) all complete and
+verified correct against multi-item test cases. Only parse_locktime()
+and the decode_transaction() orchestrator remain before the full legacy
+pipeline is assembled. **
+
+Open items / next session:
+
+* Write parse_locktime() -- same shape as parse_version(), fixed 4-byte
+  field at the end of the string.
+* Optionally rename output_value() to parse_outputs() for naming
+  consistency with the rest of the parser (cosmetic, not urgent).
+* Build decode_transaction() to chain version -> input_count -> inputs
+  -> output_count -> outputs -> locktime via offset-passing, returning
+  one combined dict.
+* Build print_transaction() for human-readable display.
+* Segwit support remains deferred until the legacy pipeline runs
+  end-to-end.
+
+Confused / needs reinforcement:
+
+* No new conceptual confusion this session. The bugs found were entirely
+  mechanical/syntax-level (missing colons, naming mismatches, indentation,
+  missing parameters, missing tuple unpacks) rather than misunderstanding
+  of the underlying parsing logic -- the field-order and offset reasoning
+  was correct throughout, including on first attempts for both
+  parse_inputs() and output_value(). Worth keeping an eye on
+  indentation-controls-scope specifically (the return-inside-loop bug),
+  since it's a silent-failure class of bug rather than a crash, and has
+  now shown up more than once.
+
+
+2026-09-10
+Covered:
+
+* Reviewed field lengths/sourcing before continuing code -- clarified
+  that all Bitcoin field lengths (version, locktime, compactSize
+  branching) come from the fixed protocol spec, not inference. Provided
+  developer.bitcoin.org/reference/transactions.html as the standing
+  authoritative reference for the rest of Project 1.
+* Decided to build the legacy (non-segwit) transaction path first, then
+  layer in segwit's marker/flag + witness parsing afterward as an
+  isolated extension -- reasoned that segwit only inserts at two fixed
+  points (after version, and after outputs) and won't require touching
+  parse_inputs/parse_outputs/parse_compactsize/parse_version once built.
+* Wrote and verified parse_version() -- correct on first attempt,
+  matched the hand-calculated version=2 example from earlier in the
+  module.
+* Mapped the full field structure of a single transaction input
+  (previous_output: 32-byte txid + 4-byte index; script_bytes via
+  compactSize; signature_script; 4-byte sequence) and discussed each
+  field's real-world function: previous_output as the UTXO-model pointer
+  to a prior transaction's output (index refers to the PRIOR
+  transaction's output list, not this input's own position -- a mix-up
+  that came up and was corrected); signature_script as proof of spending
+  authorization (not a fixed-length hash -- length varies due to DER
+  signature encoding and script type); sequence as the field gating
+  whether nLockTime is enforced.
+* Wrote reverse_hex_bytes() as a standalone helper (byte-pair reversal
+  without int conversion, for txid's display-only reversal) -- correct
+  and tested immediately.
+* Built parse_inputs() incrementally, one field at a time, testing after
+  each addition:
+  - previous_output (txid + index) -- correct after one clarification
+    on what the index field means.
+  - signature/script section -- required two rounds of debugging: a
+    byte-count vs. hex-character-count mismatch, and an incorrect
+    application of reverse_hex_bytes() to script data (scripts are read
+    straight through, not reversed).
+  - sequence field -- correct on first attempt.
+  - Full single-input version (txid, index, script, sequence, offset)
+    tested successfully end to end.
+* Discussed the loop structure needed to handle multiple inputs:
+  confirmed input_count is read once, before the first input, and
+  passed into parse_inputs() as a parameter rather than being reread
+  inside the function. Talked through list-of-dictionaries as the right
+  data structure (one dict per input, list handles ordering/position
+  naturally) versus a dictionary keyed by input number.
+* A couple of messy intermediate versions surfaced reintroducing
+  input_count-reading logic inside parse_inputs() and misusing
+  parse_compactsize()/hex_to_value_LEndian() together -- walked back to
+  the last known-working single-input version rather than debugging the
+  drift.
+
+** Module 6 / Project 1 -- parse_version(), parse_compactsize(), and a
+single-input version of parse_inputs() (txid/index/script/sequence) all
+complete and tested. The for-loop to handle multiple inputs (input_count
+iterations, collecting results into a list of dicts) has been scoped in
+detail but not yet written. **
+
+Open items / next session:
+
+* Write the for-loop wrapping the working single-input logic:
+  parse_inputs(string_hex, offset, input_count), looping input_count
+  times, packaging each input's fields into a dict, appending to a
+  list, and returning (inputs_list, offset) once the loop completes.
+* After that: parse_outputs(), parse_locktime(), then decode_transaction()
+  to chain everything together.
+* Segwit support remains deferred until the legacy pipeline runs end to
+  end.
+
+Confused / needs reinforcement:
+
+* previous_output's index field was initially assumed to reference this
+  input's own position within the current transaction -- corrected to:
+  it references an output's position within the PRIOR transaction being
+  spent. Worth a quick re-check next session since this is an easy mix-up
+  to fall back into.
+* A couple of drifted code attempts mixed together parse_compactsize()
+  and hex_to_value_LEndian() incorrectly (passing one function's output
+  into the other, or calling parse_compactsize() with the wrong
+  arguments) -- not a deep conceptual gap, but worth being deliberate
+  next session about which helper applies where before writing lines,
+  rather than combining them ad hoc.
+
+
+2026-09-08
+Covered:
+
+* Reinforced the "offset tracking" concept before continuing code work --
+  reframed as a bookmark passed between functions (each function is told
+  a starting index, reads its field, and hands back the index where the
+  next field begins). Confirmed understanding cleanly via a quick check
+  (parse_version with offset=0 should return 8).
+* Finished assembling parse_compactsize() end-to-end, including the
+  return of both the count and the new offset for all four branches
+  (<=252 / 253 / 254 / 255). Two rounds of syntax cleanup needed (missing
+  colon on the def line, then an indentation mismatch), both explained
+  and corrected. Verified the finished function against test cases for
+  all four branches -- all passed, matching hand-calculated values from
+  earlier sessions (e.g. fd1001 -> (272, 6)).
+* Asked where field-length values (4 bytes for version, etc.) actually
+  come from -- clarified these are fixed by the Bitcoin protocol spec,
+  not inferred or estimated. Provided developer.bitcoin.org/reference
+  (transactions.html) as the standing authoritative reference for the
+  rest of Project 1, plus a secondary source for cross-checking.
+* Discussed scope: whether to build segwit support from the start or
+  legacy-only first. Decided on legacy-first, since segwit's structural
+  changes (marker/flag byte, optional witness section) are isolated to
+  two specific insertion points and won't require rewriting
+  parse_inputs/parse_outputs/parse_compactsize/parse_version once
+  written. Segwit to be layered in as a conditional extension after the
+  legacy pipeline works end-to-end -- confirmed this doesn't mean
+  segwit is excluded from the final published work, just sequenced
+  later.
+* Wrote and tested parse_version() -- correct on first attempt. Verified
+  against the "02000000..." = version 2 example from the start of the
+  module; returned (2, 8) as expected.
+* Introduced parse_inputs() as the next function -- reviewed the
+  per-input field structure from the developer reference (36-byte
+  previous_output, compactSize script_bytes, variable signature_script,
+  4-byte sequence) and began thinking through the general shape needed
+  (looping input_count times, tracking offset across iterations) before
+  writing any code.
+
+** Module 6 / Project 1 -- parse_compactsize() and parse_version() both
+complete and verified correct. parse_inputs() scoped and about to start;
+segwit support explicitly deferred until the legacy pipeline is done. **
+
+Open items / next session:
+
+* Write parse_inputs() -- loop over input_count, reading previous_output,
+  script_bytes (via parse_compactsize), signature_script, and sequence
+  for each input.
+* Continue to parse_outputs() and parse_locktime() afterward.
+* Revisit segwit (marker/flag + witness parsing) only after the full
+  legacy pipeline runs end-to-end.
+
+Confused / needs reinforcement:
+
+* None significant -- offset-tracking concern from the prior session
+  resolved cleanly with the bookmark analogy and a correct check-in
+  answer; no repeated confusion this session.
+
+
+2026-09-05
+Covered:
+
+* Started writing parse_compactsize() in Python -- string slicing
+  (raw_hex[offset:offset+2]), int(hex_str, 16) conversion, and a solid
+  review of offset as an absolute index from the start of the string.
+* Built the four-way if/elif/else branch for the compactsize cases
+  (<=252 / 253 / 254 / 255), self-correcting an off-by-one (< vs <=) and
+  several == vs = mistakes along the way.
+* Chose else over an explicit == 255 for the last branch, with a comment
+  explaining why it's safe (byte value provably bounded 0-255) -- good
+  discussion of when else is/isn't appropriate defensively.
+* Caught two of their own bugs unprompted: wrong slice lengths for the
+  254/255 branches, and a variable name mismatch (tx_number vs
+  tx_number_hex).
+* Wrote hex_to_value_LEndian() as a reusable little-endian helper
+  (bytes.fromhex(str)[::-1] -> .hex() -> int(..., 16)), contrasted
+  against naive character-level string reversal. Two rounds of
+  self-correction (a no-op line, a type mismatch) before landing on a
+  correct, cleanly-named version.
+
+** Module 6 / Project 1 -- parse_compactsize() logic fully reasoned
+through and correct; not yet assembled into a complete function.
+hex_to_value_LEndian() helper complete and correct. **
+
+Open items / next session:
+
+* Assemble parse_compactsize() end-to-end, including returning both the
+  count and the new offset.
+* Move to parse_version() and parse_inputs().
+
+Confused / needs reinforcement:
+
+* None significant this session -- confusions that came up (offset
+  semantics, 0x notation, else safety) were resolved cleanly within the
+  session itself, mostly through self-correction rather than repeated
+  reinforcement being needed.
+
+
+2026-09-03
+Covered:
+
+* Module 6 kickoff — Project 1 (raw transaction decoder) selected as the
+  starting point over Project 2 (RPC node info CLI), since it builds
+  directly on Module 4 transaction-structure theory. Clarified up front
+  that the two projects are complementary, not sequential: Project 1
+  proves byte-level protocol literacy (parsing), Project 2 proves API
+  composition/tool-building (orchestration) — they share concepts
+  (Module 4 transaction/block theory, Module 5's rpc_call) but neither
+  depends on the other.
+* Discussed portfolio framing for Project 1 specifically — agreed a
+  parser alone reads as "technical hobbyist project" unless paired with
+  a clear README, real test cases against known transactions, and a
+  notes/ explainer; decided to build documentation alongside the code
+  from the start this module rather than retrofitting it in Module 7.
+* Clarified README vs. notes/ as two distinct documents with different
+  audiences: README is a thin, functional project intro (what/usage/
+  example, ~15-30 second screener read); notes/parsing-raw-transactions.md
+  is the actual portfolio-differentiating piece — a written explainer of
+  compactsize/endianness aimed at a non-specialist reader, tied directly
+  to the curriculum's stated PM/solutions-engineering communication goal.
+* Conceptual pass on raw transaction structure: flat byte sequence, no
+  field names or delimiters, fixed left-to-right field order (version ->
+  [segwit marker/flag] -> input count -> inputs -> output count ->
+  outputs -> [witness data] -> locktime). Parser knows field boundaries
+  by position/counting, never by scanning for markers.
+* Hex/byte/bit relationship established and reused throughout: 1 hex
+  character = 4 bits, so 2 hex characters = 1 byte. Confirmed against
+  known 32-byte txid/block hash = 64-character hex strings.
+* Version field (4 bytes = 8 hex chars) worked by hand: byte-pair split,
+  little-endian reversal, hex-to-decimal conversion. First attempt
+  conflated hex and decimal notation ("2.0000000"); corrected to
+  version = 2 as a plain integer, no decimal point involved.
+* Distinguished which fields are little-endian and which aren't: numeric
+  fields (version, sequence, locktime, output values, varint counts) are
+  little-endian; raw byte-string fields (scriptSig, scriptPubKey, witness
+  data) are read straight through, no reversal, since they're not numbers
+  to begin with. Flagged the previous-txid field as the one genuine
+  gotcha: stored little-endian internally but reversed again by
+  convention everywhere it's normally displayed (explorers,
+  getrawtransaction, getblock's tx[] list).
+* Locktime worked by hand (byte-pair-reverse mechanic confirmed a second
+  time on a different field): c93c0e00 -> 933065. Correctly reasoned it
+  must be a block height, though initial justification (inferred from not
+  knowing submission timing) wasn't the actual mechanism. Corrected to
+  the real rule: locktime < 500,000,000 = block height, >= 500,000,000 =
+  Unix timestamp, a fixed protocol threshold requiring no external
+  context. Locktime of exactly 0 flagged as a distinct "no restriction"
+  case, not "block height 0."
+* Compactsize varint mechanic covered in full: first byte value ≤ 0xfc
+  is the count itself (1 byte total); 0xfd/0xfe/0xff are flag bytes
+  signaling 2/4/8 further little-endian bytes follow (3/5/9 bytes total,
+  respectively -- the total always includes the flag byte itself).
+  Practiced correctly on the 0x03 (1-byte) and 0xfd 10 01 (3-byte, value
+  272) cases unassisted.
+* Real confusion surfaced and resolved on 0x notation: initially treated
+  "0x" as literal data character-width, leading to a "half-byte" framing
+  for a bare fd/fe/ff and uncertainty about whether the system reads a
+  literal "0x" before the flag byte in the raw hex string. Corrected:
+  0x never appears in raw transaction hex at all -- it is purely a
+  language-level notation (e.g. Python source) for "read the following
+  digits as hex," not part of the wire data. Re-confirmed the flag byte
+  (fd/fe/ff) is a full, ordinary 2-character/1-byte value, identical in
+  size to every other byte in the structure -- no half-bytes anywhere in
+  this format.
+* One small mislabeling self-corrected: diagrammed the ff (9-byte total)
+  case with correct byte math but an fe label left over from the prior
+  example -- caught and noted as worth double-checking which flag is
+  actually being branched on once this becomes code.
+* Discussed the planned Python structure for the decoder: standalone
+  decode_transaction(raw_hex) taking a plain hex string (not calling
+  rpc_call internally) so the parser itself stays testable independent of
+  a live node; a separate print_transaction() for display, keeping
+  parsing and formatting as separate concerns (same spirit as the
+  print() vs return distinction from Module 5). Confirmed the raw hex
+  input comes from rpc_call("getrawtransaction", [txid, False]) --
+  verbose=False this time, since the decoder's whole purpose is doing by
+  hand what verbose=True would otherwise hand back pre-decoded. Sketched
+  function breakdown: parse_compactsize, parse_version, parse_inputs,
+  parse_outputs, parse_locktime, decode_transaction, print_transaction --
+  with an offset value threaded through each parse function to track
+  read position, identified as the code expression of the
+  position-tracking (not marker-scanning) principle established earlier
+  in the session.
+
+** Module 6 (Build) -- IN PROGRESS. Project 1 (raw transaction decoder)
+selected as starting project. Conceptual groundwork complete: transaction
+structure, hex/byte/bit relationships, endianness rules, locktime
+interpretation, and the full compactsize varint mechanic all covered and
+correctly demonstrated. No code written yet. **
+
+Open items / next session:
+
+* Write parse_compactsize() as the first function -- identified as the
+  right starting point since every other parsing function depends on it.
+* Continue through parse_version, parse_inputs, parse_outputs,
+  parse_locktime, building and testing incrementally against real
+  getrawtransaction output rather than writing the full parser at once.
+* Draft notes/parsing-raw-transactions.md (compactsize + endianness
+  explainer) at a natural checkpoint -- not yet started, content is
+  fresh from this session.
+* README for Project 1 to be written alongside the code per the
+  README-vs-notes split established this session, not deferred to
+  Module 7.
+
+Confused / needs reinforcement:
+
+* 0x notation vs. actual byte-width was a genuine, multi-step confusion
+  (half-byte framing, uncertainty about whether "0x" is literally present
+  in the data) -- fully resolved by session end but took several
+  clarifying passes. Worth a light re-check once compactsize is actually
+  implemented in code, to confirm the confusion doesn't resurface as an
+  off-by-one in offset math.
+* Locktime block-height reasoning arrived at the right answer via
+  plausible but incorrect logic (inferring from lack of mempool-timing
+  knowledge rather than the actual fixed threshold) -- corrected cleanly
+  once the real rule was given, not a deep gap, but worth noting the
+  instinct to reason from real-world context rather than looking for a
+  protocol-level rule first.
+
+
+
 2026-09-01
 Covered:
 
