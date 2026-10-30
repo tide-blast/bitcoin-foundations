@@ -7,6 +7,39 @@ for continuity.
 
 ---
 
+
+2026-10-30
+Covered:
+
+* Applied all of the remaining README and explainer edits from the
+  Oct 29 review.
+* Committed and pushed everything for Project 1 to GitHub.
+* Checked the result on GitHub: the MIT License shows in the repo
+  sidebar and the README and explainer links work.
+* Cloned and confirmed function of the repository to a fresh folder.
+
+** Module 6 / Project 1 (raw transaction decoder) -- COMPLETE. Decoder
+(legacy and segwit, command-line input), automated tests, README, MIT
+license, and explainer are all published to GitHub. **
+
+Open items / next session:
+
+* Start Module 6 Project 2: RPC-based node info tool (Python CLI that
+  queries the signet node for things like chain height, sync status,
+  peers, and mempool, and presents them). Reuse the Module 5 rpc_call
+  approach; keep the same documentation habit (README and tests built
+  alongside the code).
+* Decide whether to connect the projects, e.g. a "look up a transaction
+  by txid and decode it" feature in Project 2 that calls the Project 1
+  decoder.
+* Module 7 later: README cleanup across projects and final portfolio
+  review.
+
+Confused / needs reinforcement:
+
+* None reported.
+
+
 2026-10-29
 Covered:
 
