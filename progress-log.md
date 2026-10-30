@@ -7,6 +7,179 @@ for continuity.
 
 ---
 
+2026-10-29
+Covered:
+
+* README for Project 1 (Raw_Transaction_Decoder) built out. Started from
+  a 14-section template with partial draft; restructured to
+  nine sections (title/summary, why it exists, features, requirements,
+  getting started, usage, example, how it works, testing/verification,
+  limitations, license). Dropped Troubleshooting, Contribution, and
+  Contact for now. Accuracy corrections made along the way: removed the
+  claim that the tool looks up transactions from a node (hex is piped in
+  from bitcoin-cli or any other source), replaced "Python 3.8+" with
+  "Python 3, developed and tested on 3.9.6", made Bitcoin Core optional,
+  replaced a privacy/security claim with "makes no network calls", and
+  moved the malformed-input TODO into Limitations. Example output in
+  the README was checked against the real decoder.
+* Added an MIT LICENSE file (repo root) and a license section in the
+  README linking to ../../LICENSE. Chose not to name the APIs
+  used for the mainnet checks and added a sentence encouraging readers
+  to audit with an API of their own choosing.
+* Added a large real mainnet transaction to the test suite: raw hex
+  stored in test_data/mainnet_84a907af.hex, new test in
+  test_tx_decoder.py (23 tests now). The expected answer is the
+  transaction's published txid: the test rebuilds the non-witness bytes
+  from the decoded fields, double-SHA-256 hashes them, and compares. It
+  also re-encodes the whole transaction, witness included, and checks it
+  reproduces the original hex. Passes; confirmed it fails when one hex
+  digit is corrupted. Limit noted: a txid does not cover witness data,
+  so witness contents are checked only for consistency.
+* Corrected tx input figure.
+* Wrote the explainer (EXPLAINER_Bitcoin_Transaction_Decoder.md)
+  for a beginner audience. Reviewed by decoding its example transaction
+  with tx_decoder.pyn and addressed errors.
+* Reviewed the latest README and explainer uploads (below).
+
+** Module 6 / Project 1 -- decoder, 23-test suite, README, MIT license,
+and explainer all written. A few small edits remain before the final
+push. **
+
+Open items / next session:
+
+* README: replace the literal "[list]" placeholder in the real-
+  transactions bullet; grammar fixes ("the Raw_Transaction_Decoder
+  project folder"); confirm the explainer file link.
+* Explainer remaining edits: table scriptSig snippet should end ...b3d3
+  (not d3d3); clarify the txid is stored in that order and explorers show
+  it byte-reversed; reword the "error handling testability" bullet in section
+  7; locktime may be a time or a block height.
+* Commit and push everything: tx_decoder.py (current segwit and
+  command-line version), test_tx_decoder.py, test_data/, README, LICENSE
+  (repo root), explainer. Then check GitHub: license shows in the
+  sidebar, README renders, links work.
+* Then Module 6 Project 2 (RPC node info tool).
+
+Confused / needs reinforcement:
+
+* Witness stack structure: item count per stack, then (length, data)
+  items, and that a lone 00 means an empty stack, not a coinbase input.
+* Before publishing, check numbers and claims in documentation against
+  the decoder; several figures in the first explainer draft did not
+  survive that check.
+
+
+2026-10-28
+Covered:
+
+* Tested tx_decoder.py on raw hex from the actual Bitcoin mainnet (the
+  earlier real-data tests were all signet). Checked five transactions:
+  three recent segwit transactions (including one with 147 inputs and
+  11 outputs) and two legacy (non-segwit) transactions.
+* Method: fetched each transaction's raw hex through an API, fed it into
+  tx_decoder.py, and compared the decoded output against the verbose JSON
+  from a different API. All five matched.
+
+** Module 6 / Project 1 -- decoder now verified against real mainnet
+data as well as signet, for both segwit and legacy transactions. Code
+is done; README, notes/ explainer, and the final push remain. **
+
+Open items / next session:
+
+* Finish the README (LLM to review for clarity and
+  accuracy). Mention verification on signet and mainnet.
+* Write the notes/ explainer (compactsize and endianness).
+* Consider adding one or two of the mainnet transactions (especially the
+  143-input one) to test_tx_decoder.py, with expected values from the
+  verbose JSON.
+* The 143-input and 11-output counts are both below 253, so those
+  count fields used the single-byte compactsize form. Whether any real
+  transaction has exercised the fd/fe/ff branches is unconfirmed; only
+  the constructed tests cover them so far.
+* Update curriculum.md (tick Project 1) and push everything to GitHub.
+* Optional: friendlier error handling for malformed hex.
+* Then Module 6 Project 2 (RPC node info tool).
+
+Confused / needs reinforcement:
+
+* None reported this session.
+
+
+2026-10-26
+Covered:
+
+* Re-entry after roughly a month away. Reviewed Module 6 state. Found
+  that the decoder code had only ever existed in chat and was never
+  saved to the repo; assembled tx_decoder.py, ran it locally (output
+  matched), and committed it to GitHub.
+* Refreshed dictionary key access and for-loops over a list of dicts.
+  Completed print_transaction() (Errors were using transaction_dict
+  instead of the loop variable, unquoted keys, and quote nesting inside
+  f-strings).
+* Re-scoped to Project 1 only for the week (about 10 hours, 5 days).
+  Project 2 deferred.
+* Segwit: marker 00 + flag 01 after version; signatures move from
+  scriptSig into a witness section between the outputs and locktime;
+  one stack per input, each stack = item count + (length, data) items.
+  Reasoned correctly why 00 in the input-count position can only
+  be the segwit marker (every transaction has at least one input).
+  Corrected an assumption: parse_witness() is unrelated to computing the
+  txid; the decoder only reads fields, and the witness must be parsed to
+  read signatures and to leave offset correct for locktime.
+* Added to tx_decoder.py (LLM generated, walked through line by line,
+  tested): segwit detection in decode_transaction(), parse_witness()
+  with nested loops, a "Witness" key in the output dict, and witness
+  printing. Learned `raise ValueError(...)` for failing loudly on an
+  unexpected flag byte; customized the message ("flag 01").
+* Added command-line input (Option A: pass the raw hex as an argument).
+  LLM generated, then walked through it line-by-line:
+  sys.argv (item 0 is the script name), len(sys.argv) > 1,
+  sys.argv[1].strip(), sys.exit(), and `if __name__ == "__main__":`.
+  Correctly predicted that removing sys.exit() would print  transaction
+  followed by the built-in test.
+* Real-data testing on signet, comparing decoder output with Core's
+  getrawtransaction <txid> true (and decoderawtransaction for the legacy
+  case): five transactions, 77 field comparisons, 0 failures.
+  - segwit P2WPKH spend with 7 taproot-style outputs (23 checks)
+  - two-input taproot key-path spend with two witness stacks (17)
+  - coinbase transaction: null input, OP_RETURN witness commitment,
+    32-byte witness reserved value; BIP34 height decoded from the
+    scriptSig as a side check (13)
+  - a transaction labeled "non-segwit" that is actually segwit (marker/
+    flag 0001, txid != hash, size != vsize), with a P2WSH output (13)
+  - legacy P2PKH transaction from the Bitcoin developer docs, decoded by
+    Core via decoderawtransaction (11)
+* mempool.space showed "no witness" for the coinbase; resolved using the
+  raw hex, Core's txinwitness, and the weight arithmetic.
+* Wrote test_tx_decoder.py (22 pytest tests): helper functions,
+  compactsize branches, version/locktime, five constructed transactions
+  (including the fd branch for a script length and a bad flag byte
+  raising ValueError), and the five real transactions above. One test of
+  LLM failed on first run because offsets count hex characters, not
+  bytes (fixed). Installed pytest and ran the suite successfully.
+* Created Projects/Raw_Transaction_Decoder containing tx_decoder.py,
+  test_tx_decoder.py, and README.md.
+
+** Module 6 / Project 1 -- legacy and segwit parsing, command-line
+input, and a 22-test suite complete and verified on signet. README,
+notes/ explainer, and the final push remain. **
+
+Open items / next session:
+
+* Finish the README
+* Write the notes/ explainer (compactsize and endianness).
+* Update curriculum.md and push everything to GitHub.
+* Optional: friendlier error handling for malformed hex.
+
+Confused / needs reinforcement:
+
+* Offsets count hex characters, not bytes (surfaced again in a test).
+* Recognizing segwit transactions: marker/flag after the version, empty
+  scriptSig with a witness, and txid != hash in Core's output.
+* Loop variable versus the parent dictionary, and nested quotes in
+  f-strings (carried over from earlier practice).
+
+
 2026-09-11
 Covered:
 
@@ -863,7 +1036,7 @@ Covered:
   of this — address clustering when UTXOs are spent together, and
   potential identity links via KYC exchanges. Correctly identified this
   as obfuscation, not full anonymity.
-* Corrected an imprecise explanation from Claude: an output's address
+* Corrected an imprecise explanation from LLM text: an output's address
   (hash) is a locking condition/label, not something that itself
   requires a private key to create or that "unlocks" anything on its
   own — the actual unlocking proof happens later, at spend time, via
@@ -890,7 +1063,7 @@ Open items / next session:
 Confused / needs reinforcement:
 
 * None of real substance — several initially-imprecise phrasings from
-  Claude were caught and corrected in discussion (e.g. "obscured but
+  LLM were caught and corrected in discussion (e.g. "obscured but
   deterministic layer" reasoning on addresses, "unlocking via hash"
   wording, fee-as-extra-input assumption). No repeated errors; strong
   session overall, particularly on transaction/fee mechanics.
@@ -923,8 +1096,7 @@ Covered:
   duplicating the last hash at a given level when the count is odd,
   walked through a 5-transaction example across multiple levels.
 * Briefly discussed why Bitcoin uses double SHA-256 (defense against
-  length-extension attacks) — noted at Darrell's request as background
-  context only, not required for deep understanding.
+  length-extension attacks).
 
 ** Module 4, Session 1 complete. **
 

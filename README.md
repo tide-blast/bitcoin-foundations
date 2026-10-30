@@ -14,5 +14,5 @@ Y Repository setup
 Y Git/GitHub workflow
 Y Linux fundamentals
 Y Python basics
-N Bitcoin Core exploration
+Y Bitcoin Core exploration
 N Bitcoin projects

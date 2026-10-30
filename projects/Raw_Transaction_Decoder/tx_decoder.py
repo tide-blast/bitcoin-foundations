@@ -1,4 +1,6 @@
-# Raw Bitcoin transaction decoder (legacy / non-segwit only, for now)
+    # Raw Bitcoin transaction decoder (legacy and segwit)
+
+import sys  #sys = a standard library module, that gives my script access to variables, functions, and attributes that interact directly with the Python interpreter and runtime environment.
 
 def hex_to_value_LEndian(string_hex):
     reversed_bytes = bytes.fromhex(string_hex)[::-1]  # Reversed values but still in byte objects (not text)
@@ -91,6 +93,25 @@ def output_value(string_hex, offset, number_value):
     return outputs_list, offset
 
 
+def parse_witness(string_hex, offset, input_count):
+    witness_list = []
+
+    for i in range(input_count):
+        item_count, offset = parse_compactsize(string_hex, offset)
+        stack = []
+
+        for j in range(item_count):
+            # parse_compactsize returns the length in bytes, not character count
+            item_length_bytes, offset = parse_compactsize(string_hex, offset)
+            item_hex = string_hex[offset:offset+item_length_bytes*2]
+            offset = offset + item_length_bytes*2
+            stack.append(item_hex)
+
+        witness_list.append(stack)
+
+    return witness_list, offset
+
+
 def parse_locktime(string_hex, offset):
     locktime_hex = string_hex[offset:offset+8]
     offset = offset + 8
@@ -103,16 +124,31 @@ def decode_transaction(string_hex):
 
     version, offset = parse_version(string_hex, offset)
 
+    # Segwit check: peek at the next byte WITHOUT advancing offset.
+    # A real input count is never 00, so 00 here means "segwit marker".
+    is_segwit = False
+    if string_hex[offset:offset+2] == "00":
+        flag_hex = string_hex[offset+2:offset+4]
+        if flag_hex != "01":
+            raise ValueError(f"Unexpected segwit flag byte: {flag_hex}. This program parses only for SegWit flag 01.")
+        is_segwit = True
+        offset = offset + 4  # skip marker (1 byte) + flag (1 byte)
+
     input_count, offset = parse_compactsize(string_hex, offset)
     inputs_list, offset = parse_inputs(string_hex, offset, input_count)
 
     output_count, offset = parse_compactsize(string_hex, offset)
     outputs_list, offset = output_value(string_hex, offset, output_count)
 
+    witness_list = []
+    if is_segwit:
+        witness_list, offset = parse_witness(string_hex, offset, input_count)
+
     locktime, offset = parse_locktime(string_hex, offset)
 
     transaction_dict = {"Version": version, "TX Inputs": inputs_list,
-                        "TX Outputs": outputs_list, "Locktime": locktime}
+                        "TX Outputs": outputs_list, "Witness": witness_list,
+                        "Locktime": locktime}
     return transaction_dict
 
 
@@ -134,11 +170,26 @@ def print_transaction(transaction_dict):
         print(f"  scriptPubKey: {tx_output['scriptPubKey']}")
         print()
 
+    if transaction_dict["Witness"]:
+        print("Witness:")
+        for i, stack in enumerate(transaction_dict["Witness"]):
+            print(f"  Input {i} stack: {stack}")
+        print()
+
     print(f"Locktime: {transaction_dict['Locktime']}")
 
+#Check to see if there is a raw hex string to parse. If not, then parse data hard-coded into this.
 
 if __name__ == "__main__":
-    # Constructed legacy test transaction: version 2, 1 input, 1 output, locktime 933065
+    if len(sys.argv) > 1:   #sys.argv = Saves the command-line arguments as strings in a list. Starts at "0", the script-name (not "python3").
+        # Word "1" should be <raw transaction hex>. Usage: python3 tx_decoder.py <raw transaction hex>
+        raw_hex = sys.argv[1].strip()   #strip removes spaces of newline characters
+        result = decode_transaction(raw_hex)
+        print_transaction(result)
+        sys.exit()
+
+    # No argument given: run the built-in constructed legacy test transaction
+    # (version 2, 1 input, 1 output, locktime 933065)
     test_hex = (
         "02000000"                      # version
         "01"                            # input count
