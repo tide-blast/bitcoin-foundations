@@ -15,4 +15,5 @@ Y Git/GitHub workflow
 Y Linux fundamentals
 Y Python basics
 Y Bitcoin Core exploration
-N Bitcoin projects
+Y [Project 1: Raw_Transaction_Decoder](projects/Raw_Transaction_Decoder)
+N Project 2: Node_Info_Tool

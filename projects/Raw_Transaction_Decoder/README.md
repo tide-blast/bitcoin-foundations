@@ -33,7 +33,7 @@ git clone https://github.com/tide-blast/bitcoin-foundations
 Then change into then `Raw_Transaction_Decoder` project folder:
 
 ```
-cd Projects/Raw_Transaction_Decoder
+cd projects/Raw_Transaction_Decoder
 ```
 
 ## Usage

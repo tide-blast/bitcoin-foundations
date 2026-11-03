@@ -73,5 +73,5 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 
 - Explanations should cover *why*, not just *what* — especially for terminal commands.
 - Concepts should be predicted/reasoned through before being confirmed, where practical.
-- Sessions may happen in separate chats; this file plus progress-log.md are the
+- Sessions with LLMs may happen in separate chats; this file plus progress-log.md are the
   source of truth for continuity, not chat history.
