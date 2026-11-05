@@ -8,6 +8,81 @@ for continuity.
 ---
 
 
+2026-11-05
+Covered:
+
+* Decided how Project 2 authenticates to the node. Rejected hardcoded
+  credentials, then compared environment variables, the cookie file,
+  command-line arguments and a runtime prompt. Chose Bitcoin Core's
+  cookie file: password chosen randomly each session by the node itself,
+  nothing secret in the repo.
+* Switched the signet node to cookie auth by commenting out rpcuser and
+  rpcpassword in bitcoin.conf. Confirmed a .cookie file now appears in
+  the signet data directory while the node runs.
+* Updated .gitignore (Python cache files, .env, *.cookie) and created
+  projects/Node_Info_Tool/.
+* Wrote and tested read_cookie(path), which reads the cookie file and
+  returns the (user, password) pair.
+* Wrote and tested rpc_call(method, params, auth, url), now taking
+  credentials as a parameter instead of hardcoding them. A
+  getblockcount call against the signet node returned a valid reply.
+* Looked at the real getblockchaininfo output and chose the report
+  fields: chain, validated blocks, remaining blocks to validate
+  (headers minus blocks), difficulty, latest block time shown as an age,
+  and verification progress as a percentage.
+* Concepts: environment variables, return vs print, splitting on the
+  first colon only, keeping fetching separate from formatting so the
+  formatter can be tested without a node, Unix timestamps.
+
+Open items / next session:
+
+* Write format_chain_section(info): takes the getblockchaininfo
+  dictionary, makes no network calls, returns the report lines.
+* Then the getnetworkinfo, getpeerinfo and getmempoolinfo sections, error
+  handling (node down, bad auth, RPC errors), tests on fake RPC
+  responses, and the README.
+* Decide on the optional --tx <txid> feature (connects to the Project 1
+  decoder) once the solid version is done.
+
+Confused / needs reinforcement:
+
+* Bugs fixed along the way: an except with no try, an unquoted file path,
+  a print placed after a return, and a stray line overwriting a
+  parameter's default value.
+* Field reasoning corrected: remaining blocks is headers minus blocks (I
+  had it reversed); the time field is the miner's timestamp in the block,
+  not when my node received it; difficulty does not itself show which
+  network, since the chain field already does.
+
+
+2026-11-04
+Covered:
+
+* Reviewed what Project 1 already covers (command-line structure, README,
+  tests, explainer) versus what Project 2 needs (calling the node over
+  RPC from Python, chaining calls and parsing JSON, credentials, a node
+  that is down or unreachable, formatting live data).
+* Settled the Project 2 scope: a command-line tool, node_info.py, that
+  calls getblockchaininfo, getnetworkinfo, getpeerinfo and getmempoolinfo
+  and prints one status report. "Solid" version adds a clear error when
+  the node is unreachable, credentials read from outside the code, and
+  tests on fake RPC responses. Optional stretch: --tx <txid> to fetch and
+  decode a transaction with the Project 1 decoder.
+* Named the project Node_Info_Tool (describes what it produces, like
+  Raw_Transaction_Decoder) rather than Node_RPC_Caller.
+* Reviewed the two Module 5 rpc_call scripts. They are not in the repo
+  and hardcode credentials, so they are not to be committed.
+
+Open items / next session:
+
+* Move credentials out of the code (decided: cookie file).
+* Set up the Project 2 folder and .gitignore, then rebuild rpc_call and
+  the first report section.
+
+Confused / needs reinforcement:
+
+* None reported.
+
 2026-10-30
 Covered:
 
