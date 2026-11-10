@@ -7,6 +7,94 @@ for continuity.
 
 ---
 
+2026-11-10
+Covered:
+
+* Chose the network section fields from the real getnetworkinfo output:
+  node software (subversion), network active, connections with the
+  inbound/outbound split, and clock offset. Left out protocol version,
+  fee settings and local addresses, since they are constants or policy
+  settings and not node status.
+* Wrote and tested format_network_section(info) for both a True and a
+  False value of networkactive.
+* Ran the chain and network sections against the live signet node; both
+  printed correct values with no errors.
+* Fixed the latest-block age to show whole minutes (int()) instead of a
+  decimal.
+* Reviewed the real getmempoolinfo output and chose the fields:
+  transaction count, virtual size in kB, and total fees. Left out the
+  policy and configuration fields.
+* Wrote and tested format_mempool_section(info). Fixed the total fees
+  line to a fixed 8 decimals so small values do not print in scientific
+  notation.
+* Scope change: dropped getpeerinfo. getnetworkinfo already provides the
+  connection counts, and per-peer detail would add code and tests for
+  little value. The tool now makes three RPC calls. Also decided against a
+  warnings line.
+* Concepts: dictionary vs list, text values need quotes, simplifying
+  "if x == True" to "if x", how Python prints very small floats, and
+  choosing report fields by the question each one answers for a reader.
+
+Open items / next session:
+
+* Write main(): read the cookie path from sys.argv[1], make the three RPC
+  calls, print the three sections with a heading and blank line between
+  them. Add the if __name__ == "__main__" guard and run it from the
+  terminal.
+* Then error handling (node down, bad auth, RPC errors), tests on fake
+  RPC responses, and the README. The urllib3 / LibreSSL warning is
+  harmless and goes in the README.
+* Decide on the optional --tx <txid> feature once the solid version is
+  done.
+
+Confused / needs reinforcement:
+
+* Text values written without quotes (a dictionary value and Yes/No),
+  and a mistyped dictionary key in shell test
+
+
+2026-11-06
+Covered:
+
+* Wrote format_chain_section(info, now=None) in node_info.py. It takes
+  the getblockchaininfo dictionary, makes no network calls, and returns
+  the chain section of the report as one string: chain, validated
+  blocks, blocks remaining (headers minus blocks), difficulty, latest
+  block age in minutes, and sync progress as a percentage.
+* Tested it against a constructed dictionary with a fixed "now" value.
+  Output matched the expected report (10 minutes ago, 100.00%).
+* Concepts: f-string syntax (the f prefix goes outside the quotes, and
+  nested quotes must differ), number formatting inside f-strings (:.4f,
+  :.2f), building one multi-line string with "\n".join(), whole-number
+  division (//), and giving the function a "now" parameter that defaults
+  to the real time so tests can pass a fixed one. Also the difference
+  between running python3 -i node_info.py (functions defined directly)
+  and import node_info (functions under the node_info name).
+* Identified the urllib3 / LibreSSL warning on import as harmless for
+  this project, since the node connection is plain HTTP on localhost. To
+  be noted in the README.
+
+Open items / next session:
+
+* Run the chain section against the live signet node: read_cookie, then
+  rpc_call getblockchaininfo, then format_chain_section.
+* Choose the fields and write the network, peers and mempool sections
+  (getnetworkinfo, getpeerinfo, getmempoolinfo).
+* Error handling (node down, bad auth, RPC errors), tests on fake RPC
+  responses, and the README.
+* Decide on the optional --tx <txid> feature once the solid version is
+  done.
+* node_info.py still lives in a Desktop folder. Move it into
+  projects/Node_Info_Tool/ before committing. Nothing for Project 2 has
+  been committed yet.
+
+Confused / needs reinforcement:
+
+* f-string quoting: the f prefix placed inside the quotes, and a quote
+  clash between nested single and double quotes.
+* Two functions with the same name in one file, where the second silently
+  replaces the first.
+
 
 2026-11-05
 Covered:
