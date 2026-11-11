@@ -7,6 +7,59 @@ for continuity.
 
 ---
 
+2026-11-11
+Covered:
+
+* Clarified how the tool finds and logs in to the node. The node's
+  address is the url default in rpc_call (127.0.0.1, port 38332), and
+  the cookie path given on the command line supplies the credentials.
+  The program never reads the node's data directory; it only sends
+  requests to the running node and prints the replies.
+* Wrote main(): reads the cookie path from sys.argv[1], makes the three
+  RPC calls (getblockchaininfo, getnetworkinfo, getmempoolinfo), and
+  prints the chain, network and mempool sections. Added the
+  if __name__ == "__main__" guard. Ran it against the live signet node
+  and the full report printed correctly.
+* Added error handling, each tested:
+    - cookie file not found: one-line message and exit
+    - node not reachable: message naming the address, tested by
+      temporarily changing the port and then restoring it
+    - wrong credentials: rpc_call raises an error on HTTP status 401
+    - node rejects a command: rpc_call raises an error containing the
+      node's message and code (e.g. Method not found, code -32601)
+  All three RPC results are now fetched before anything prints, so a
+  failure never produces a half report.
+* Test suite: test_node_info.py (22 pytest tests) was written by LLM.
+  It covers the three format functions, read_cookie, rpc_call with a faked requests.post, and
+  main() with a faked command line and node.
+* Concepts: HTTP status codes and response.status_code vs .json(), raise
+  and try/except, sys.exit(1), catching the specific requests
+  ConnectionError, and why rpc_call raises errors while main() decides
+  what the user sees.
+
+Open items / next session:
+
+* Run the test file locally (python3 -m pytest -v) and read through it
+  until I can explain each test, especially the monkeypatch / fake
+  response ones. Add one test of my own.
+* Write the README: what the tool does, how to run it, the cookie file
+  setup, the fixed signet default address, and a note that the
+  urllib3 / LibreSSL warning is harmless.
+* Decide on the optional explainer and the optional --tx <txid> feature.
+* Move node_info.py and test_node_info.py into
+  projects/Node_Info_Tool/, then commit and push. Nothing for Project 2
+  has been committed yet.
+
+Confused / needs reinforcement:
+
+* Parenthesis matching inside an f-string expression, which gave a
+  syntax error.
+* An else placed after unrelated lines instead of directly after the if
+  body, and calling response.json() in main() where response does not
+  exist (only rpc_call has it).
+* Mocking: how a fake response replaces requests.post in tests.
+
+
 2026-11-10
 Covered:
 
