@@ -150,6 +150,6 @@ I also checked five real mainnet transactions by hand: three recent SegWit trans
 
 ## License
 
-Copyright (c) 2026 tide-blast
+Copyright (c) 2026 [tide-blast](https://github.com/tide-blast)
 
 Released under the MIT License. See [LICENSE](../../LICENSE) for the full text.

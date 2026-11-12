@@ -92,7 +92,7 @@ def test_chain_section_uses_real_clock_when_now_not_given():
     # a block timestamped "right now" should read as 0 minutes ago
     import time
     info = dict(CHAIN, time=int(time.time()))
-    assert "0 minutes ago" in format_chain_section(info)
+    assert "Latest block:       0 minutes ago" in format_chain_section(info)
 
 
 # ---------------------------------------------------------------------------
