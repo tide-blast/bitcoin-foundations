@@ -9,11 +9,11 @@ Goals:
 - Build Bitcoin-related tools
 - Document technical concepts clearly
 
-Progress:<br>
-[x] Repository setup<br>
-[x] Git/GitHub workflow<br>
-[x] Linux fundamentals<br>
-[x] Python basics<br>
-[x] Bitcoin Core exploration<br>
-[x] [Project 1: Raw_Transaction_Decoder](projects/Raw_Transaction_Decoder)<br>
-[x] Project 2: [Node_Info_Tool](projects/Node_Info_Tool)<br>
+Progress:
+- [x] Repository setup
+- [x] Git/GitHub workflow
+- [x] Linux fundamentals
+- [x] Python basics
+- [x] Bitcoin Core exploration
+- [x] [Project 1: Raw_Transaction_Decoder](projects/Raw_Transaction_Decoder)
+- [x] [Project 2: Node_Info_Tool](projects/Node_Info_Tool)
