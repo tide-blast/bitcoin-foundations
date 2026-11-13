@@ -24,7 +24,7 @@ The message is a small piece of structured text (JSON) sent over HTTP, the same 
 {"jsonrpc": "1.0", "id": "node_info", "method": "getblockcount", "params": []}
 ```
 
-Parts:
+Parts:<br>
 `method`: The command to run<br>
 `params`: The command's arguments, as a list (empty here, because this command takes none)<br>
 `id`: A label chosen by the sender, which the node copies into its reply so the two can be matched<br>
