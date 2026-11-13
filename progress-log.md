@@ -7,6 +7,34 @@ for continuity.
 
 ---
 
+2026-11-13
+Covered:
+
+* Finished the test walkthrough, part 4: the main() tests. They set the
+  command line with monkeypatch (sys.argv), capture printed output with
+  capsys, catch the sys.exit(1) with pytest.raises(SystemExit) and check
+  the exit code, and replace rpc_call inside the node_info module with a
+  fake one that returns canned data or raises an error. With that, the whole
+  test file has been read and reviewed.
+* Finalized the Project 2 documentation: fixed the README's Node setup
+  bullet and the cookie wording, added the link to the explainer, and
+  edited the explainer by hand.
+* Updated .gitignore (.pytest_cache/ and *.bak), marked Project 2 done
+  in the root README and curriculum.md, moved node_info.py,
+  test_node_info.py, README.md and the explainer into
+  projects/Node_Info_Tool/, and pushed. The 22 tests passed on a fresh copy
+  of the repository.
+* Committed .gitignore separately to make reverting easier
+
+Open items / next session:
+
+* None.
+
+Confused / needs reinforcement:
+
+* None reported.
+
+
 2026-11-12
 Covered:
 

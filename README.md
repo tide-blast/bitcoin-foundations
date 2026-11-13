@@ -39,6 +39,8 @@ bitcoin-foundations/
     └── Node_Info_Tool/
 ```
 
-## License
+Find me on GitHub: [tide-blast](https://github.com/tide-blast)
 
-MIT. See [LICENSE](LICENSE).
+Copyright (c) 2026 [tide-blast](https://github.com/tide-blast)
+
+Released under the MIT License. See [LICENSE](LICENSE) for the full text.
