@@ -62,11 +62,11 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 
 ### Module 6 — Build
 - [x] Project 1: raw transaction decoder (Python)
-- [ ] Project 2: RPC-based node info tool (Python)
+- [x] Project 2: RPC-based node info tool (Python)
 
 ### Module 7 — Polish + write-up
-- [ ] Clean READMEs across all projects
-- [ ] 2-3 short technical explainer articles
+- [x] Clean READMEs across all projects
+- [x] 2-3 short technical explainer articles
 - [ ] Final portfolio review
 
 ## Working style notes

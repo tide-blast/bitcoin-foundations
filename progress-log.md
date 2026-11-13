@@ -7,6 +7,63 @@ for continuity.
 
 ---
 
+2026-11-12
+Covered:
+
+* Drafted the Project 2 README, following the Project 1
+  README's section style. Decided to drop the optional --tx feature
+  and not to ship a requirements.txt: the README
+  gives "python3 -m pip install requests" instead.
+* Checked the README's claims against Bitcoin Core's history. Core
+  generates the cookie file when no RPC password is set, and deletes it
+  at shutdown. Behavior with rpcauth is unclear and may depend on the
+  Core version, so the README wording needs adjusting. Core's docs
+  describe timeoffset only as "the time offset", so the report shows the
+  number without interpreting it.
+* Looked at how the tool would behave on mainnet. Formatted mainnet-sized
+  values by hand: large difficulty prints in full digits, and sync
+  progress rounds to 100.00% while a node is still a few blocks behind
+  (blocks remaining is the exact signal). Decided not to add mainnet
+  tests; the README states the tool has not been run against a mainnet
+  node.
+* Drafted EXPLAINER_Bitcoin_Node_Info_Tool.md, covering RPC over HTTP,
+  cookie login, the fields in the three replies, error handling, and why
+  fetching and formatting are kept apart.
+* Ran test_node_info.py locally: 22 passed (Python 3.9.6, pytest 8.4.2).
+* Started the test walkthrough:
+    - Part 1, formatter tests: fixed dictionaries in, exact text out.
+      Broke the latest-block age formatting on purpose; two tests failed
+      as I predicted. Found a weak assertion in the real-clock test (it
+      matched any age ending in "0 minutes ago") and tightened it to the
+      full line; it passes on the real code.
+    - Part 2, read_cookie tests: tmp_path gives a throwaway file. The
+      tests protect the newline strip, the first-colon split, and the
+      FileNotFoundError being passed up to main().
+    - Part 3, rpc_call tests: monkeypatch replaces requests.post with a
+      fake reply (FakeResponse), so the 401 and node-error paths run
+      without a node.
+* Concepts: pytest assert, tmp_path, monkeypatch, fakes (mocks), and
+  int(x / 60) vs x // 60 (they differ only for negative ages).
+
+Open items / next session:
+
+* Finish the walkthrough, part 4: the main() tests (sys.argv, capsys,
+  SystemExit, faking rpc_call).
+* Finalize the README: adjust the rpcauth wording in Node setup, restore
+  the Python version note in Requirements, add the link to the explainer.
+* Move node_info.py, test_node_info.py, README.md and the explainer into
+  projects/Node_Info_Tool/. Commit and push, including the .gitignore
+  change. Nothing for Project 2 has been committed yet.
+* Update curriculum.md and this progress log in the repo.
+
+Confused / needs reinforcement:
+
+* Mocking: first guess was that monkeypatch alters a real reply. It
+  replaces the function with a fake so the real call never happens.
+* The first read_cookie test also protects the newline strip, not only
+  the split.
+
+
 2026-11-11
 Covered:
 

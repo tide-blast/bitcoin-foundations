@@ -16,4 +16,4 @@ Y Linux fundamentals
 Y Python basics
 Y Bitcoin Core exploration
 Y [Project 1: Raw_Transaction_Decoder](projects/Raw_Transaction_Decoder)
-N Project 2: Node_Info_Tool
+Y Project 2: Node_Info_Tool
