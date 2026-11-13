@@ -50,7 +50,7 @@ If `pip` is available directly on your system, `pip install requests` does the s
 
 The tool logs in with the `.cookie` file that Bitcoin Core writes while it is running, so it never needs a password you chose.
 
-- - Core generates the cookie when no `rpcpassword` is set. If your `bitcoin.conf` sets `rpcuser` and `rpcpassword`, comment out those lines and restart the node. In the author's setup the cookie file appeared after those lines were commented out. Behavior with `rpcauth` may depend on the Core version; if no `.cookie` appears, check `bitcoin.conf` for it.
+- Core generates the cookie when no `rpcpassword` is set. If your `bitcoin.conf` sets `rpcuser` and `rpcpassword`, comment out those lines and restart the node. In the author's setup the cookie file appeared after those lines were commented out. Behavior with `rpcauth` may depend on the Core version; if no `.cookie` appears, check `bitcoin.conf` for it.
 - The file is in the network's subfolder of the node's data directory. For signet that is `<data directory>/signet/.cookie`.
 - Core deletes the cookie when it shuts down and writes a new one on the next start. The tool reads it fresh on every run, so this does not matter.
 - Never commit a cookie file or a `bitcoin.conf` containing credentials.

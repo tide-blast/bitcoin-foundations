@@ -1,6 +1,6 @@
 # Asking a Bitcoin Node Questions: How the Node Info Tool Works
 
-A beginner-friendly introduction to talking to Bitcoin Core over RPC, and to turning its answers into a readable status report.
+A beginner-friendly introduction to talking to Bitcoin Core over RPC and turning its answers into a readable status report.
 
 ---
 
@@ -8,7 +8,7 @@ A beginner-friendly introduction to talking to Bitcoin Core over RPC, and to tur
 
 A Bitcoin node is a program that keeps a copy of the blockchain, checks every new block and transaction against the rules, and talks to other nodes. It does a great deal, but it does not show much by default. To find out whether it is caught up, how many peers it has, or how busy the mempool is, you have to ask it.
 
-This program asks. It connects to a Bitcoin Core node running on your own computer, makes three requests, and prints one report: the state of the chain, the state of the network connections, and the state of the mempool. If something goes wrong, such as the node not running or the login failing, it says so in one plain line instead of crashing.
+This program submits queries to obtain information contained in the blockchain. It connects to a Bitcoin Core node running on your own computer, makes three requests, and prints one report: the state of the chain, the state of the network connections, and the state of the mempool. If something goes wrong, such as the node not running or the login failing, it says so in one plain line instead of crashing.
 
 The program was written as part of a self-directed Bitcoin and software-development curriculum ([bitcoin-foundations](https://github.com/tide-blast/bitcoin-foundations)). Its companion project, the Raw Transaction Decoder, reads Bitcoin's byte format by hand. This one works at a higher level: it uses an existing interface, combines several of its answers, and presents them for a person to read.
 
@@ -24,12 +24,11 @@ The message is a small piece of structured text (JSON) sent over HTTP, the same 
 {"jsonrpc": "1.0", "id": "node_info", "method": "getblockcount", "params": []}
 ```
 
-| Part | Meaning |
-|---|---|
-| `method` | The command to run |
-| `params` | The command's arguments, as a list (empty here, because this command takes none) |
-| `id` | A label chosen by the sender, which the node copies into its reply so the two can be matched |
-| `jsonrpc` | The protocol version the message uses |
+Parts:
+`method`: The command to run
+`params`: The command's arguments, as a list (empty here, because this command takes none)
+`id`: A label chosen by the sender, which the node copies into its reply so the two can be matched
+`jsonrpc`: The protocol version the message uses
 
 The reply has three parts, whatever the command:
 
@@ -83,7 +82,7 @@ Each command returns a large dictionary. Most of the fields describe things a st
 
 | Field | What it is | How the report shows it |
 |---|---|---|
-| `chain` | The network (`signet` here) | Printed as is |
+| `chain` | The network (`signet` here) | Printed as-is |
 | `blocks` | Blocks the node has fully validated | "Validated blocks" |
 | `headers` | Block headers the node knows about | Used to compute "Blocks remaining" (`headers - blocks`) |
 | `difficulty` | A measure of how hard it is to produce a valid block | Printed to four decimals |
@@ -120,18 +119,18 @@ A quiet network like signet has a small mempool, sometimes only a few transactio
 
 ## 5. When Things Go Wrong
 
-A tool that only works when everything is perfect is not very useful. Four things can fail in a predictable way, and each gets a plain message:
+Four things can fail in a predictable way, and each gets a plain message:
 
 | What happened | How the program notices | What the user sees |
 |---|---|---|
-| The cookie file is not where the user said | Python raises `FileNotFoundError` when opening it | `Cookie file not found: <path>` |
-| The node is not running, or the port is wrong | `requests` raises a `ConnectionError` | `Could not connect to the node at 127.0.0.1:38332. Is bitcoind running?` |
-| The login is wrong or out of date | The node replies with HTTP status 401 | `Authentication failed` |
-| The node understood the request but refused it | The reply's `error` field is not `null` | `Node returned an error: <message> (code <number>)` |
+| The cookie file is not where the user said. | Python raises `FileNotFoundError` when opening it. | `Cookie file not found: <path>` |
+| The node is not running, or the port is wrong. | `requests` raises a `ConnectionError`. | `Could not connect to the node at 127.0.0.1:38332. Is bitcoind running?` |
+| The login is wrong or out of date. | The node replies with HTTP status 401. | `Authentication failed` |
+| The node understood the request but refused it. | The reply's `error` field is not `null`. | `Node returned an error: <message> (code <number>)` |
 
-The last two are worth a closer look, because they need explicit checks. An HTTP status code is a number attached to every web reply: 200 means success and 401 means "unauthorized". The program checks the number before reading the body, because a failed login does not come with a normal reply. A refused command is stranger, because it arrives as a perfectly valid reply with the `error` field filled in. No Python exception happens, so a program that forgot to look would carry on with an empty result and fail later, somewhere confusing.
+The last two need explicit checks. An HTTP status code is a number attached to every web reply: "200" means "success" and "401" means "unauthorized". The program checks the number before reading the body, because a failed login does not come with a normal reply. A refused command seems more unusual because it arrives as a perfectly valid reply with the `error` field filled in. No Python exception happens, so a program that forgot to look would carry on with an empty result and fail later, somewhere confusing.
 
-**Who prints the message?** `rpc_call()` does not print anything. When it detects a problem it *raises* an error, and the error travels up to `main()`, which decides what to show and then exits. Keeping the printing in one place means the rest of the code can stay focused on its own job.
+**Who prints the message?** `rpc_call()` does not print anything. When it detects a problem, it *raises* an error, and the error travels up to `main()`, which decides what to show and then exits. Keeping the printing in one place means the rest of the code can stay focused on its own job.
 
 **All three requests are made before anything is printed.** If the node stopped between the first and third request, the user would otherwise see half a report followed by an error. Fetching everything first means the output is either a full report or a single error line.
 
@@ -144,7 +143,7 @@ The program has two kinds of functions:
 - **Functions that talk to the world:** `read_cookie()` reads a file, and `rpc_call()` sends a request.
 - **Functions that only transform data:** `format_chain_section()`, `format_network_section()` and `format_mempool_section()` each take a dictionary and return text. They make no network calls, read no files, and print nothing.
 
-The second kind is much easier to check. To test a formatter you pass it a dictionary you wrote by hand and compare the result with the text you expect, so no node is needed.
+The second kind is much easier to check because you can pass it a hand-written dictionary and compare the result with the expected text.
 
 One formatter needed a small extra step. The "latest block" line depends on the current time, so its output changes every second. The function therefore takes an optional `now` argument. It defaults to the real time, and a test can pass a fixed value, such as exactly ten minutes after the block's timestamp, and get the same answer every time.
 
