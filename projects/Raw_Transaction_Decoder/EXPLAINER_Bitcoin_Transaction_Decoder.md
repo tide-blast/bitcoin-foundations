@@ -169,4 +169,6 @@ Understanding how bytes translate into fields demystifies the blockchain. What o
 
 ---
 
-*Written for beginners exploring Bitcoin protocol work. The mainnet transaction example is txid fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4.*
+*Written for beginners exploring Bitcoin protocol work.
+
+The mainnet transaction example is txid fff2525b8931402dd09222c50775608f75787bd2b87e56995a7bdd30f79702c4.*

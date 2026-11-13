@@ -25,10 +25,10 @@ The message is a small piece of structured text (JSON) sent over HTTP, the same 
 ```
 
 Parts:
-`method`: The command to run
-`params`: The command's arguments, as a list (empty here, because this command takes none)
-`id`: A label chosen by the sender, which the node copies into its reply so the two can be matched
-`jsonrpc`: The protocol version the message uses
+`method`: The command to run<br>
+`params`: The command's arguments, as a list (empty here, because this command takes none)<br>
+`id`: A label chosen by the sender, which the node copies into its reply so the two can be matched<br>
+`jsonrpc`: The protocol version the message uses<br>
 
 The reply has three parts, whatever the command:
 

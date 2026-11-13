@@ -10,10 +10,10 @@ Goals:
 - Document technical concepts clearly
 
 Progress:
-Y Repository setup
-Y Git/GitHub workflow
-Y Linux fundamentals
-Y Python basics
-Y Bitcoin Core exploration
-Y [Project 1: Raw_Transaction_Decoder](projects/Raw_Transaction_Decoder)
-Y Project 2: Node_Info_Tool
+Y Repository setup<br>
+Y Git/GitHub workflow<br>
+Y Linux fundamentals<br>
+Y Python basics<br>
+Y Bitcoin Core exploration<br>
+Y [Project 1: Raw_Transaction_Decoder](projects/Raw_Transaction_Decoder)<br>
+Y Project 2: [Node_Info_Tool](projects/Node_Info_Tool)<br>
