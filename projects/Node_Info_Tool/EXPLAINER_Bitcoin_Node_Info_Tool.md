@@ -8,7 +8,7 @@ A beginner-friendly introduction to talking to Bitcoin Core over RPC and turning
 
 A Bitcoin node is a program that keeps a copy of the blockchain, checks every new block and transaction against the rules, and talks to other nodes. It does a great deal, but it does not show much by default. To find out whether it is caught up, how many peers it has, or how busy the mempool is, you have to ask it.
 
-This program submits queries to obtain information contained in the blockchain. It connects to a Bitcoin Core node running on your own computer, makes three requests, and prints one report: the state of the chain, the state of the network connections, and the state of the mempool. If something goes wrong, such as the node not running or the login failing, it says so in one plain line instead of crashing.
+This program queries a running node for its status. It connects to a Bitcoin Core node running on your own computer, makes three requests, and prints one report: the state of the chain, the state of the network connections, and the state of the mempool. If something goes wrong, such as the node not running or the login failing, it says so in one plain line instead of crashing.
 
 The program was written as part of a self-directed Bitcoin and software-development curriculum ([bitcoin-foundations](https://github.com/tide-blast/bitcoin-foundations)). Its companion project, the Raw Transaction Decoder, reads Bitcoin's byte format by hand. This one works at a higher level: it uses an existing interface, combines several of its answers, and presents them for a person to read.
 
