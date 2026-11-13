@@ -67,7 +67,7 @@ control discipline) are meant to generalize beyond Bitcoin-specific roles.
 ### Module 7 — Polish + write-up
 - [x] Clean READMEs across all projects
 - [x] 2-3 short technical explainer articles
-- [ ] Final portfolio review
+- [x] Final portfolio review
 
 ## Working style notes
 
